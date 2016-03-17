@@ -29,8 +29,8 @@ public:
     
     bool ready() {return m_read_all;}
     uint32_t length() {return m_total_length;}
+    uint8_t method() {return m_method;}
     std::string& url() {return m_url;}
-    std::string& method() {return m_method;}
     std::string& body() {return m_body_content;}
     
     void setUrl(const char* url, size_t length) {m_url.append(url, length);}
@@ -69,12 +69,12 @@ private:
     HttpParserObj(){}
     void setMethod(http_method method) {
         switch (method) {
-            case HTTP_GET: m_method.assign("GET");break;
-            case HTTP_DELETE: m_method.assign("DELETE");break;
-            case HTTP_POST: m_method.assign("POST");break;
-            case HTTP_PUT: m_method.assign("PUT");break;
-            case HTTP_HEAD: m_method.assign("HEAD");break;
-            default: m_method.assign("NONE");break;
+            case HTTP_GET: m_method = 1;break;
+            case HTTP_DELETE: m_method = 2;break;
+            case HTTP_POST: m_method = 3;break;
+            case HTTP_PUT: m_method = 4;break;
+            case HTTP_HEAD: m_method = 5;break;
+            default: m_method = 0;break;
         }
     }
     void setCurName(const char* at, size_t length) {m_curHeaderName.assign(at,length);}
@@ -88,9 +88,9 @@ private:
     http_parser_settings    m_settings;
     bool        m_read_all;
     uint32_t    m_total_length;
+    uint8_t m_method;
     std::string m_url;
     std::string m_body_content;
-    std::string m_method;
     std::string m_curHeaderName;
     std::string m_curHeaderValue;
     std::map<std::string, std::string> m_headers;

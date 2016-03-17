@@ -19,12 +19,12 @@
 #include "HttpParserObj.h"
 #include "TreadPool.h"
 
-typedef std::function<void(const std::string&, HttpResponse*)> HttpCallback_t;
+typedef std::function<void(uint8_t method, const std::string&, HttpResponse*)> HttpCallback_t;
 typedef std::map<int, HttpResponse>  SendList_t;
 class HttpTask: public Task
 {
 public:
-    HttpTask(int fd, std::string url):m_fd(fd),m_url(url)
+    HttpTask(int fd, uint8_t method, std::string url):m_fd(fd),m_url(url),m_method(method)
     {}
     virtual ~HttpTask() {}
     void setHttpCallback(HttpCallback_t callback) {m_callback = callback;}

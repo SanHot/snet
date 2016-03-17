@@ -14,7 +14,7 @@ SendList_t HttpServer::s_sendList;
 void HttpTask::run() {
     HttpResponse res;
     if(m_callback)
-        m_callback(m_url, &res);
+        m_callback(m_method, m_url, &res);
     else
         res.setHttp404Status();
     res.setAlive(false);
@@ -81,14 +81,13 @@ void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
     
     if (obj->ready()) {
         LOG_STDOUT("Url: %s", obj->url().c_str());
-        std::string url(obj->url());
         buf->read(NULL, obj->length());
         
 //        HttpResponse res;
 //        res.setHttp404Status();
 //        HttpServer::addResponseList(stream->fd(), res);
         
-        HttpTask* tsk = new HttpTask(stream->fd(), url);
+        HttpTask* tsk = new HttpTask(obj->method(), stream->fd(), obj->url());
         tsk->setHttpCallback(m_httpCallback);
         g_httpThreadPool.addTask(tsk);
     }

@@ -12,7 +12,7 @@
 #include "TcpServer.h"
 #include "http/HttpServer.h"
 
-void callback(const std::string&, HttpResponse*) {
+void callback(uint8_t method, const std::string& url, HttpResponse* res) {
     
 }
 
