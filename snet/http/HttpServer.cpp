@@ -60,8 +60,10 @@ void HttpServer::sendResponseList() {
     }
     for (auto& obj : sendlist) {
         StreamPtr_t stream = FindConnectedStream(obj.first);
-        std::string data(obj.second.packet());
-        stream->async_write(data.c_str(), (int)data.length());
+        if (stream != nullptr) {
+            std::string data = obj.second.packet();
+            stream->async_write(data.c_str(), (int)data.length());
+        }
     }
 }
 
@@ -87,7 +89,7 @@ void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
 //        res.setHttp404Status();
 //        HttpServer::addResponseList(stream->fd(), res);
         
-        HttpTask* tsk = new HttpTask(obj->method(), stream->fd(), obj->url());
+        HttpTask* tsk = new HttpTask(stream->fd(),obj->method(), obj->url());
         tsk->setHttpCallback(m_httpCallback);
         g_httpThreadPool.addTask(tsk);
     }
