@@ -14,7 +14,7 @@
 class TcpServer {
     
 public:
-    TcpServer():m_loop(new IOLoop),m_svr(std::make_shared<IOStream>(m_loop)) {}
+    TcpServer():m_loop(new IOLoop),m_svr(std::make_shared<TcpStream>(m_loop)) {}
     ~TcpServer() {}
     
     void setCloseCallback();

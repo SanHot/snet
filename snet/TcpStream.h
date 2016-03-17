@@ -29,11 +29,11 @@ class IPAddress;
 class Buffer;
 StreamPtr_t FindConnectedStream(int fd);
 
-class IOStream : public std::enable_shared_from_this<IOStream>
+class TcpStream : public std::enable_shared_from_this<TcpStream>
 {
 public:
-    IOStream(IOLoop* loop, int fd = -1);
-    virtual ~IOStream();
+    TcpStream(IOLoop* loop, int fd = -1);
+    virtual ~TcpStream();
     
 public:
     IOEvent* event() {return m_ev;}
@@ -95,7 +95,7 @@ public:
     }
 
 private:
-    DISALLOW_EVIL_CONSTRUCTORS(IOStream);
+    DISALLOW_EVIL_CONSTRUCTORS(TcpStream);
     int m_fd;
     int m_status;
     int m_error_code;

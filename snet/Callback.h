@@ -13,10 +13,10 @@
 
 class IOLoop;
 class IOEvent;
-class IOStream;
+class TcpStream;
 class Buffer;
 //class IPAddress;
-typedef std::shared_ptr<IOStream> StreamPtr_t;
+typedef std::shared_ptr<TcpStream> StreamPtr_t;
 typedef std::map<int, StreamPtr_t> StreamMap_t;
 
 typedef std::function<void()> TimerCallback_t;

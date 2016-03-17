@@ -10,7 +10,7 @@
 #define HttpServer_hpp
 
 #include "../stdafx.h"
-#include "../IOStream.h"
+#include "../TcpStream.h"
 #include "../IOLoop.h"
 #include "../Callback.h"
 #include "../Log.h"

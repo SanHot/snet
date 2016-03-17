@@ -7,7 +7,7 @@
 //
 
 #include <sys/uio.h>
-#include "IOStream.h"
+#include "TcpStream.h"
 #include "IOLoop.h"
 #include "IOEvent.h"
 #include "Log.h"
@@ -23,7 +23,7 @@ StreamPtr_t FindConnectedStream(int fd) {
     return NULL;
 }
 
-IOStream::IOStream(IOLoop* loop, int fd)
+TcpStream::TcpStream(IOLoop* loop, int fd)
 :m_loop(loop)
 ,m_fd(fd)
 ,m_ev(NULL)
@@ -39,11 +39,11 @@ IOStream::IOStream(IOLoop* loop, int fd)
         m_status = STATE_CONNECTED;
     }
     m_ev = new IOEvent(m_loop, m_fd);
-    m_ev->setReadCallback(std::bind(&IOStream::handle_read_event, this, std::placeholders::_1));
-    m_ev->setWriteCallback(std::bind(&IOStream::handle_write_event, this, std::placeholders::_1));
+    m_ev->setReadCallback(std::bind(&TcpStream::handle_read_event, this, std::placeholders::_1));
+    m_ev->setWriteCallback(std::bind(&TcpStream::handle_write_event, this, std::placeholders::_1));
 }
 
-IOStream::~IOStream()
+TcpStream::~TcpStream()
 {
     delete m_ev;
 }
@@ -55,7 +55,7 @@ IOStream::~IOStream()
 //          该情况分2种，请检查新数据的fionread，
 //          如果为0，表示client完成close，
 //          如果不为0， 有新数据正常到达。
-void IOStream::handle_read_event(void* arg) {
+void TcpStream::handle_read_event(void* arg) {
     if (m_status == STATE_LISTENING) {
 //        情况1: 开始accepte新连接
         sockaddr_in peer_addr;
@@ -69,7 +69,7 @@ void IOStream::handle_read_event(void* arg) {
             BaseSocket::set_no_delay(peer_fd);
             BaseSocket::set_non_block(peer_fd);
             
-            StreamPtr_t peer_stream = std::make_shared<IOStream>(m_loop, peer_fd);
+            StreamPtr_t peer_stream = std::make_shared<TcpStream>(m_loop, peer_fd);
             g_streamMap.insert(std::make_pair(peer_fd, peer_stream));
 
             peer_stream->m_read_callback = m_read_callback;
@@ -120,7 +120,7 @@ void IOStream::handle_read_event(void* arg) {
 //        这时候需要检查connect情况，确保连接正常
 //2， （针对所有）已经完成连接的peer有可以开始发送数据，
 //         在这个事件可使用send发送数据
-void IOStream::handle_write_event(void* arg) {
+void TcpStream::handle_write_event(void* arg) {
     if (m_status == STATE_CONNECTING) {
         int err = 0;
         unsigned int len = sizeof(err);
@@ -179,12 +179,12 @@ void IOStream::handle_write_event(void* arg) {
     m_ev->setWriting(false);
 }
 
-void IOStream::post_close_event(void* arg) {
+void TcpStream::post_close_event(void* arg) {
     m_status = STATE_CLOSING;
-    m_loop->add_handle(std::bind(&IOStream::handle_close_event, this, std::placeholders::_1));
+    m_loop->add_handle(std::bind(&TcpStream::handle_close_event, this, std::placeholders::_1));
 }
 
-void IOStream::handle_close_event(void* arg) {
+void TcpStream::handle_close_event(void* arg) {
     assert(m_status == STATE_CLOSING);
     
     IPAddress addr(m_peer_addr);
@@ -202,12 +202,12 @@ void IOStream::handle_close_event(void* arg) {
         svr->m_close_callback(addr);
 }
 
-void IOStream::handle_error_event(void *arg) {
+void TcpStream::handle_error_event(void *arg) {
     if (m_error_callback != NULL)
         m_error_callback(m_peer_addr, arg);
 }
 
-int IOStream::async_listening(const char* ip, int port, const ConnectionCallback_t& callback) {
+int TcpStream::async_listening(const char* ip, int port, const ConnectionCallback_t& callback) {
     if (m_fd == -1)
         return -1;
     
@@ -227,7 +227,7 @@ int IOStream::async_listening(const char* ip, int port, const ConnectionCallback
     return ret;
 }
 
-int IOStream::async_connect(const char* server_ip, int server_port, const ConnectionCallback_t& callback) {
+int TcpStream::async_connect(const char* server_ip, int server_port, const ConnectionCallback_t& callback) {
     if (m_fd == -1)
         return -1;
     
@@ -246,18 +246,18 @@ int IOStream::async_connect(const char* server_ip, int server_port, const Connec
     return ret;
 }
 
-int IOStream::async_close() {
+int TcpStream::async_close() {
     post_close_event(NULL);
     return 0;
 }
 
-int IOStream::async_write(const char* data, int len) {
+int TcpStream::async_write(const char* data, int len) {
     m_sendBuffer.write((void*)data, len);
     m_ev->setWriting(true);
     return 0;
 }
 
-int IOStream::async_write(const char* data, int len, const WriteCompleteCallback_t& callback) {
+int TcpStream::async_write(const char* data, int len, const WriteCompleteCallback_t& callback) {
     //m_sendBuffer += std::string(data, len);
     m_sendBuffer.write((void*)data, len);
     m_write_callback = callback;
@@ -265,17 +265,17 @@ int IOStream::async_write(const char* data, int len, const WriteCompleteCallback
     return 0;
 }
 
-int IOStream::async_read(const ReadMessageCallback_t& callback) {
+int TcpStream::async_read(const ReadMessageCallback_t& callback) {
     m_read_callback = callback;
     return 0;
 }
 
-int IOStream::async_read_bytes(int num_of_bytes, const ReadMessageCallback_t& callback) {
+int TcpStream::async_read_bytes(int num_of_bytes, const ReadMessageCallback_t& callback) {
     m_read_callback = callback;
     return 0;
 }
 
-int IOStream::async_read_until(char delimiter, const ReadMessageCallback_t& callback) {
+int TcpStream::async_read_until(char delimiter, const ReadMessageCallback_t& callback) {
     m_read_callback = callback;
     return 0;
 }

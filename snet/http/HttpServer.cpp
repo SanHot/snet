@@ -22,7 +22,7 @@ void HttpTask::run() {
 }
 
 HttpServer::HttpServer(IOLoop* loop):m_loop(loop) {
-    m_svr = std::make_shared<IOStream>(m_loop);
+    m_svr = std::make_shared<TcpStream>(m_loop);
 }
 
 HttpServer::~HttpServer() {

@@ -16,7 +16,7 @@
 		26D8830F1B817377003D1213 /* BaseSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26D8830D1B817377003D1213 /* BaseSocket.cpp */; };
 		26DD40411C8469A4005E4AFC /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26DD403F1C8469A4005E4AFC /* Log.cpp */; };
 		26DF03771B840DAF00A73085 /* IOKevent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26DF03751B840DAF00A73085 /* IOKevent.cpp */; };
-		26DF037A1B844F9500A73085 /* IOStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26DF03781B844F9500A73085 /* IOStream.cpp */; };
+		26DF037A1B844F9500A73085 /* TcpStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26DF03781B844F9500A73085 /* TcpStream.cpp */; };
 		26F153FA1C85682D0044FEAB /* MutexGuard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F153F81C85682D0044FEAB /* MutexGuard.cpp */; };
 		26F2F7A91C8680F6009C2161 /* HttpServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F2F7A71C8680F6009C2161 /* HttpServer.cpp */; };
 		26F591E21B8ABC53005477D4 /* Util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F591E01B8ABC53005477D4 /* Util.cpp */; };
@@ -58,8 +58,8 @@
 		26DD86441C74068E0016AB17 /* IOEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOEvent.h; sourceTree = "<group>"; };
 		26DF03751B840DAF00A73085 /* IOKevent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IOKevent.cpp; sourceTree = "<group>"; };
 		26DF03761B840DAF00A73085 /* IOKevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOKevent.h; sourceTree = "<group>"; };
-		26DF03781B844F9500A73085 /* IOStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IOStream.cpp; sourceTree = "<group>"; };
-		26DF03791B844F9500A73085 /* IOStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOStream.h; sourceTree = "<group>"; };
+		26DF03781B844F9500A73085 /* TcpStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TcpStream.cpp; sourceTree = "<group>"; };
+		26DF03791B844F9500A73085 /* TcpStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TcpStream.h; sourceTree = "<group>"; };
 		26F078011C894F8B008D9BAA /* HttpConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpConnection.h; path = http/HttpConnection.h; sourceTree = "<group>"; };
 		26F153F81C85682D0044FEAB /* MutexGuard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MutexGuard.cpp; sourceTree = "<group>"; };
 		26F153F91C85682D0044FEAB /* MutexGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutexGuard.h; sourceTree = "<group>"; };
@@ -116,8 +116,8 @@
 				26DD86441C74068E0016AB17 /* IOEvent.h */,
 				260A8DD01C7EEB130041849E /* IOLoop.cpp */,
 				26B5CA5E1BEE0EA900C17183 /* IOLoop.h */,
-				26DF03781B844F9500A73085 /* IOStream.cpp */,
-				26DF03791B844F9500A73085 /* IOStream.h */,
+				26DF03781B844F9500A73085 /* TcpStream.cpp */,
+				26DF03791B844F9500A73085 /* TcpStream.h */,
 				260A8DD21C7EEDAE0041849E /* Callback.h */,
 				26F153F81C85682D0044FEAB /* MutexGuard.cpp */,
 				26F153F91C85682D0044FEAB /* MutexGuard.h */,
@@ -206,7 +206,7 @@
 			files = (
 				26D8830F1B817377003D1213 /* BaseSocket.cpp in Sources */,
 				26F153FA1C85682D0044FEAB /* MutexGuard.cpp in Sources */,
-				26DF037A1B844F9500A73085 /* IOStream.cpp in Sources */,
+				26DF037A1B844F9500A73085 /* TcpStream.cpp in Sources */,
 				262E66341C8AC3AF00C9D7DB /* http_parser.c in Sources */,
 				26DD40411C8469A4005E4AFC /* Log.cpp in Sources */,
 				267FA3531C8D431C004B12CF /* TreadPool.cpp in Sources */,
