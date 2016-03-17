@@ -42,7 +42,7 @@ public:
     HttpServer(IOLoop* loop);
     ~HttpServer();
     
-    int start(const char* ip, int port);
+    int start(const char* ip, int port, int task_count);
     void setHttpCallback(const HttpCallback_t& callback);
     void addLoopFunc(IOLoop::Function_t func);
     static void addResponseList(int fd, const HttpResponse& res);

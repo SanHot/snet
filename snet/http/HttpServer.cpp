@@ -29,8 +29,8 @@ HttpServer::~HttpServer() {
     delete m_loop;
 }
 
-int HttpServer::start(const char* ip, int port) {
-    g_httpThreadPool.init(3);
+int HttpServer::start(const char* ip, int port, int task_count) {
+    g_httpThreadPool.init(task_count);
     m_svr->async_listening(ip, port, std::bind(&HttpServer::onConn, this, std::placeholders::_1));
     m_svr->async_read(std::bind(&HttpServer::onRead, this, std::placeholders::_1, std::placeholders::_2));
     m_loop->add_handle(std::bind(&HttpServer::runInLoop, this, std::placeholders::_1));
