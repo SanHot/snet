@@ -30,17 +30,15 @@ HttpServer::~HttpServer() {
 }
 
 int HttpServer::start(const char* ip, int port) {
-    g_httpThreadPool.init(1);
+    g_httpThreadPool.init(3);
     m_svr->async_listening(ip, port, std::bind(&HttpServer::onConn, this, std::placeholders::_1));
     m_svr->async_read(std::bind(&HttpServer::onRead, this, std::placeholders::_1, std::placeholders::_2));
     m_loop->add_handle(std::bind(&HttpServer::runInLoop, this, std::placeholders::_1));
     return 0;
 }
 
-void HttpServer::setHttpCallback(const std::string& path, const HttpCallback_t& callback) {
-    if (m_httpCallbacks.find(path) != m_httpCallbacks.end()) {
-        m_httpCallbacks.insert(std::make_pair(path, callback));
-    }
+void HttpServer::setHttpCallback(const HttpCallback_t& callback) {
+    m_httpCallback = callback;
 }
 
 void HttpServer::addLoopFunc(IOLoop::Function_t func) {
@@ -90,8 +88,9 @@ void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
 //        res.setHttp404Status();
 //        HttpServer::addResponseList(stream->fd(), res);
         
-        g_httpThreadPool.addTask(new HttpTask(stream->fd(), url));
-        
+        HttpTask* tsk = new HttpTask(stream->fd(), url);
+        tsk->setHttpCallback(m_httpCallback);
+        g_httpThreadPool.addTask(tsk);
     }
 }
 

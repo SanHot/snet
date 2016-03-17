@@ -43,7 +43,7 @@ public:
     ~HttpServer();
     
     int start(const char* ip, int port);
-    void setHttpCallback(const std::string& path, const HttpCallback_t& callback);
+    void setHttpCallback(const HttpCallback_t& callback);
     void addLoopFunc(IOLoop::Function_t func);
     static void addResponseList(int fd, const HttpResponse& res);
     static void sendResponseList();
@@ -57,7 +57,7 @@ private:
 private:
     IOLoop* m_loop;
     StreamPtr_t m_svr;
-    std::map<std::string, HttpCallback_t> m_httpCallbacks;
+    HttpCallback_t m_httpCallback;
     
     ThreadPool g_httpThreadPool;
     static MUTEX_T s_mtx;

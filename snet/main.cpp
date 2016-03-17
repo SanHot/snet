@@ -12,6 +12,10 @@
 #include "TcpServer.h"
 #include "http/HttpServer.h"
 
+void callback(const std::string&, HttpResponse*) {
+    
+}
+
 int main(int argc, const char * argv[]) {
     std::cout << "Hello, World!\n";
     

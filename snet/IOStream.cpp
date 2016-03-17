@@ -20,7 +20,6 @@ StreamPtr_t FindConnectedStream(int fd) {
     if (iter != g_streamMap.end()) {
         return iter->second;
     }
-    
     return NULL;
 }
 
@@ -92,14 +91,14 @@ void IOStream::handle_read_event(void* arg) {
         assert(m_status == STATE_CONNECTED);
 //        char buf[m_read_buffer_size];
 //        memset(buf, 0, m_read_buffer_size);
-//        ssize_t ret = (int)::recv(m_fd, buf, m_read_buffer_size, 0);
+//        ssize_t ret = ::recv(m_fd, buf, m_read_buffer_size, 0);
         uint32_t free = m_readBuffer.size() - m_readBuffer.offset();
         if (free < m_read_buffer_size + 1)
             m_readBuffer.extend(m_read_buffer_size + 1);
-        ssize_t ret = (int)::recv(m_fd, m_readBuffer.buffer()+m_readBuffer.offset(), m_read_buffer_size, 0);
-        m_readBuffer.incWriteOffset((int)ret);
-        LOG_STDOUT("Recv(%d): %d", m_fd, (int)ret);
+        ssize_t ret = ::recv(m_fd, m_readBuffer.buffer()+m_readBuffer.offset(), m_read_buffer_size, 0);
         if (ret > 0) {
+            LOG_STDOUT("Recv(%d): %d", m_fd, (int)ret);
+            m_readBuffer.incWriteOffset((int)ret);
             if (m_read_callback != NULL)
                 m_read_callback(shared_from_this(), &m_readBuffer);
         }
@@ -253,7 +252,6 @@ int IOStream::async_close() {
 }
 
 int IOStream::async_write(const char* data, int len) {
-    //m_sendBuffer += std::string(data, len);
     m_sendBuffer.write((void*)data, len);
     m_ev->setWriting(true);
     return 0;
