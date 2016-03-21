@@ -9,8 +9,6 @@
 #ifndef stdafx_http_h
 #define stdafx_http_h
 
-#include "stdafx.h"
-
 #define HTTP_RESPONSE_HEADER    "HTTP/1.1 200 OK\r\n"\
                                 "Connection:close\r\n"\
                                 "Content-Length:%d\r\n"\

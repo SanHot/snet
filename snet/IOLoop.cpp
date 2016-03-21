@@ -6,6 +6,7 @@
 //  Copyright © 2016年 ___SAN___. All rights reserved.
 //
 
+#include <algorithm>
 #include "IOLoop.h"
 #include "IOEvent.h"
 #include "IOKevent.h"

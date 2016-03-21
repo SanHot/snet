@@ -71,7 +71,11 @@ int BaseSocket::connect(int fd, const char* ip, int port) {
 
 int BaseSocket::get_arrivals(int fd) {
     u_long reach_count = 0;
+#ifdef WIN32
+    int ret = ioctlsocket(fd, FIONREAD, &reach_count);
+#else
     int ret = ioctl(fd, FIONREAD, &reach_count);
+#endif
     if (ret < 0) {
         LOG_STDOUT("ioctl(%d): error", fd);
         return -1;
@@ -82,11 +86,16 @@ int BaseSocket::get_arrivals(int fd) {
 
 int BaseSocket::set_reuse_addr(int fd, bool on) {
     int opt = on ? 1 : 0;
-    return setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, static_cast<socklen_t>(sizeof(opt)));
+    return setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, static_cast<socklen_t>(sizeof(opt)));
 }
 
 int BaseSocket::set_non_block(int fd) {
+#ifdef WIN32
+    u_long nonblock = 1;
+    return ioctlsocket(fd, FIONBIO, &nonblock);
+#else
     return fcntl(fd, F_SETFL, O_NONBLOCK | fcntl(fd, F_GETFL));
+#endif
 }
 
 int BaseSocket::set_no_delay(int fd) {
@@ -99,12 +108,10 @@ int BaseSocket::is_blocking(int error_code) {
     return 0;
 }
 
-int BaseSocket::get_error_code(int fd) {
-    int err;
-    socklen_t len = static_cast<socklen_t>(sizeof(err));
-    if(getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &len) < 0) {
-        err = errno;
-    }
-
-    return err;
+int BaseSocket::get_error_code() {
+#ifdef WIN32
+    return WSAGetLastError();
+#else
+    return errno;
+#endif
 }

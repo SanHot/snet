@@ -24,11 +24,14 @@
 #include <functional>
 #include <mutex>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#endif
 
 //typedef unsigned char uchar_t;
 //#define interface class
-#define INVALID_SOCKET -1
 
 #endif

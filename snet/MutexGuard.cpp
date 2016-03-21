@@ -11,7 +11,7 @@
 Mutex::Mutex()
 :m_threadId(0)
 {
-#ifdef WIN32
+#ifdef _MSC_VER
     InitializeCriticalSection(&m_mutex);
 #else
     pthread_mutex_init(&m_mutex, NULL);
@@ -19,7 +19,7 @@ Mutex::Mutex()
 }
 Mutex::~Mutex()
 {
-#ifdef WIN32
+#ifdef _MSC_VER
     DeleteCriticalSection(&m_mutex);
 #else
     pthread_mutex_destroy(&m_mutex);
@@ -27,7 +27,7 @@ Mutex::~Mutex()
 }
 
 void Mutex::lock() {
-#ifdef WIN32
+#ifdef _MSC_VER
     EnterCriticalSection(&m_mutex);
     //m_threadId = static_cast<uint32_t>(GetCurrentThreadId());
 #else
@@ -38,7 +38,7 @@ void Mutex::lock() {
 
 void Mutex::unlock() {
     m_threadId = 0;
-#ifdef WIN32
+#ifdef _MSC_VER
     LeaveCriticalSection(&m_mutex);
 #else
     pthread_mutex_unlock(&m_mutex);

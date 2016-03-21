@@ -14,7 +14,7 @@
 #define MAX_LOG_FILE_SIZE	0x4000000
 
 int setSleep(int millisecond) {
-#ifdef _WIN32
+#ifdef WIN32
     Sleep(millisecond);
 #else
     int sec = (int)(millisecond / 1000);

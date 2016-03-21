@@ -6,13 +6,11 @@
 //  Copyright (c) 2015年 ___SAN___. All rights reserved.
 //
 
-#include <sys/uio.h>
 #include "TcpStream.h"
 #include "IOLoop.h"
 #include "IOEvent.h"
 #include "Log.h"
 
-#define SOCKET_ERROR -1
 StreamMap_t g_streamMap;
 
 StreamPtr_t FindConnectedStream(int fd) {
@@ -103,7 +101,7 @@ void TcpStream::handle_read_event(void* arg) {
             post_close_event(NULL);
         }
         else {
-            int err = errno;
+            int err = BaseSocket::get_error_code();
             if (err != EAGAIN && err != EWOULDBLOCK) {
                 LOG_STDOUT("READ_EVENT(%d): error(%d)", (int)ret, err);
                 handle_error_event((void*)&err);
@@ -120,8 +118,13 @@ void TcpStream::handle_read_event(void* arg) {
 void TcpStream::handle_write_event(void* arg) {
     if (m_status == STATE_CONNECTING) {
         int err = 0;
+#ifdef WIN32
+        int len = sizeof(err);
+        getsockopt(m_fd, SOL_SOCKET, SO_ERROR, (char*)&err, &len);
+#else
         unsigned int len = sizeof(err);
         getsockopt(m_fd, SOL_SOCKET, SO_ERROR, (void*)&err, &len);
+#endif
         if (err) {
             LOG_STDOUT("CONNECTING_EVENT(%d): error(%d)", m_fd, err);
             handle_error_event((void*)&err);
@@ -140,11 +143,15 @@ void TcpStream::handle_write_event(void* arg) {
                 m_ev->setWriting(false);
                 return;
             }
-            
+
+#ifdef WIN32
+            ssize_t ret = ::write(m_fd, m_sendBuffer.buffer(), m_sendBuffer.offset());
+#else
             struct iovec vector;
             vector.iov_base = m_sendBuffer.buffer();
             vector.iov_len = m_sendBuffer.offset();
             ssize_t ret = ::writev(m_fd, &vector, 1);
+#endif
             LOG_STDOUT("Write(%d): %d", m_fd, (int)ret);
             if (ret == m_sendBuffer.offset()) {
                 m_sendBuffer.clear();
@@ -154,7 +161,7 @@ void TcpStream::handle_write_event(void* arg) {
                 
             }
             else if (ret < 0) {
-                int err = errno;
+                int err = BaseSocket::get_error_code();
                 if (err != EAGAIN && err != EWOULDBLOCK) {
                     m_sendBuffer.clear();
                     m_ev->setWriting(false);
@@ -187,7 +194,11 @@ void TcpStream::handle_close_event(void* arg) {
     m_ev->setClosing();
     size_t n = g_streamMap.erase(lcl_fd);
     assert(n == 1);
+#ifdef WIN32
+    ::closesocket(lcl_fd);
+#else
     ::close(lcl_fd);
+#endif
     LOG_STDOUT("Closed(%d): %s,%d", addr.fd(), addr.ipStr().c_str(), addr.port());
     
     StreamPtr_t svr = FindConnectedStream(svr_fd);

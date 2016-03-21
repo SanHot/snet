@@ -22,7 +22,7 @@ struct BaseSocket
     static int set_non_block(int fd);
     static int set_no_delay(int fd);
     static int is_blocking(int error_code);
-    static int get_error_code(int fd);
+    static int get_error_code();
 };
 
 

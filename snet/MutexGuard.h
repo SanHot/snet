@@ -12,7 +12,7 @@
 #include "stdafx.h"
 #include "Util.h"
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #define MUTEXOBJECT_T CRITICAL_SECTION
 #else
 #define MUTEXOBJECT_T pthread_mutex_t

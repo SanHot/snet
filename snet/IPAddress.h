@@ -19,8 +19,11 @@ public:
     ~IPAddress() {}
     
     IPAddress(const std::string& ip, uint16_t port, int fd) {
+#ifdef WIN32
+        ZeroMemory(&m_addr,  sizeof(m_addr));
+#else
         bzero(&m_addr, sizeof(m_addr));
-        
+#endif
         m_addr.sin_family = AF_INET;
         m_addr.sin_port = htons(port);
         
@@ -97,6 +100,31 @@ private:
         printf("getHostByName Error");
         return uint32_t(-1);
     }
+
+#ifdef WIN32
+    int inet_pton(int af, const char *src, void *dst) {
+        struct sockaddr_storage ss;
+        int size = sizeof(ss);
+        char src_copy[INET6_ADDRSTRLEN+1];
+
+        ZeroMemory(&ss, sizeof(ss));
+        /* stupid non-const API */
+        strncpy (src_copy, src, INET6_ADDRSTRLEN+1);
+        src_copy[INET6_ADDRSTRLEN] = 0;
+
+        if (WSAStringToAddress(src_copy, af, NULL, (struct sockaddr *)&ss, &size) == 0) {
+            switch(af) {
+                case AF_INET:
+                    *(struct in_addr *)dst = ((struct sockaddr_in *)&ss)->sin_addr;
+                    return 1;
+                case AF_INET6:
+                    *(struct in6_addr *)dst = ((struct sockaddr_in6 *)&ss)->sin6_addr;
+                    return 1;
+            }
+        }
+        return 0;
+    }
+#endif
     
 private:
     struct sockaddr_in m_addr;

@@ -10,9 +10,9 @@
 #define HttpConnection_h
 
 #include "../stdafx.h"
-#include "../IOStream.h"
+#include "../TcpStream.h"
 #include "../Callback.h"
-#include "Buffer.h"
+#include "../Buffer.h"
 #include "HttpResponse.h"
 #include "HttpParserObj.h"
 
@@ -36,6 +36,7 @@ typedef std::shared_ptr<HttpConnection> HttpConnectionPtr_t;
 class HttpConnection: public std::enable_shared_from_this<HttpConnection>
 {
 public:
+    typedef std::function<void(uint8_t method, const std::string&, HttpResponse*)> HttpCallback_t;
     HttpConnection(StreamPtr_t conn): m_conn(conn) {}
     ~HttpConnection(){}
     
@@ -53,7 +54,7 @@ public:
             m_input.read(NULL, len);
             HttpResponse res;
             if (m_callback != NULL)
-                m_callback(obj->url(), &res);
+                m_callback(obj->method(), obj->url(), &res);
             else
                 res.setHttp404Status();
             std::string data = res.packet();
@@ -71,7 +72,7 @@ private:
     }
     
 private:
-    std::weak_ptr<IOStream> m_conn;
+    std::weak_ptr<TcpStream> m_conn;
     HttpCallback_t m_callback;
     Buffer m_input;
     Buffer m_output;
