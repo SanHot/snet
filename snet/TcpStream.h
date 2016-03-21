@@ -25,10 +25,7 @@ enum
     STATE_CLOSING
 };
 
-class IPAddress;
-class Buffer;
 StreamPtr_t FindConnectedStream(int fd);
-
 class TcpStream : public std::enable_shared_from_this<TcpStream>
 {
 public:
@@ -114,6 +111,7 @@ private:
     
     char m_read_delimiter;
     int m_read_bytes;
+    const TimeItem_t* m_timer;
     
     //事件回调
     ConnectionCallback_t m_accept_callback;

@@ -10,6 +10,7 @@
 #define __snet__IOLoop__
 
 #include "stdafx.h"
+#include "Callback.h"
 
 class MutexGuard;
 class IOEvent;
@@ -19,8 +20,6 @@ class IOKevent;
 class IOLoop
 {
 public:
-    typedef std::function<void (void*)> Function_t;
-    
     IOLoop();
     ~IOLoop();
     
@@ -30,19 +29,13 @@ public:
     int remove_handle(IOEvent* ev);
     
     int add_handle(const Function_t& func);
-    int add_handle(int timeout, const Function_t& callback);
+    TimeItem_t* add_timer(int timeout, const Function_t& callback);
+    int remove_timer(const TimeItem_t* timer);
     
 private:
     void loop();
     
 private:
-    typedef struct {
-        Function_t	callback;
-        uint64_t	timeout;
-        uint64_t	next_tick;
-    } TimeItem_t;
-    typedef std::shared_ptr<TimeItem_t> TimeItemPtr_t;
-    
     Poller* m_poller;
     bool m_started;
     

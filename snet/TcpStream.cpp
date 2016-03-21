@@ -178,6 +178,7 @@ void TcpStream::post_close_event(void* arg) {
 
 void TcpStream::handle_close_event(void* arg) {
     assert(m_status == STATE_CLOSING);
+    m_loop->remove_timer(m_timer);
     
     IPAddress addr(m_peer_addr);
     int svr_fd = m_local_addr.fd();
@@ -280,6 +281,7 @@ int TcpStream::async_read_until(char delimiter, const ReadMessageCallback_t& cal
 
 void TcpStream::setTimeOutCallback(int timeout, const TimerCallback_t &callback) {
     m_timeout_callback = callback;
-    if (m_status != STATE_CONNECTING)
-        m_loop->add_handle(timeout, std::bind(&TcpStream::handle_timeout_event, this, std::placeholders::_1));
+    if (m_status != STATE_CONNECTING) {
+        m_timer = m_loop->add_timer(timeout, std::bind(&TcpStream::handle_timeout_event, this, std::placeholders::_1));
+    }
 }

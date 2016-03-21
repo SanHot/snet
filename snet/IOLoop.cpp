@@ -38,12 +38,18 @@ int IOLoop::add_handle(const Function_t& func) {
     m_postEventList.push_back(func);
     return 0;
 }
-int IOLoop::add_handle(int timeout, const Function_t& callback) {
+
+TimeItem_t* IOLoop::add_timer(int timeout, const Function_t& callback) {
     TimeItem_t* pTime = new TimeItem_t;
     pTime->callback = callback;
     pTime->timeout = timeout;
     pTime->next_tick = get_tick() + timeout;
     m_timeEventList.push_back(pTime);
+    return pTime;
+}
+int IOLoop::remove_timer(const TimeItem_t* timer) {
+    auto it = std::find(m_timeEventList.begin(), m_timeEventList.end(), timer);
+    m_timeEventList.erase(it);
     return 0;
 }
 

@@ -10,15 +10,14 @@
 #define HttpServer_hpp
 
 #include "../stdafx.h"
-#include "../TcpStream.h"
-#include "../IOLoop.h"
-#include "../Callback.h"
-#include "../Log.h"
 #include "../MutexGuard.h"
+#include "../Callback.h"
 #include "HttpResponse.h"
 #include "HttpParserObj.h"
 #include "TreadPool.h"
 
+class TcpStream;
+class IOLoop;
 typedef std::function<void(uint8_t method, const std::string&, HttpResponse*)> HttpCallback_t;
 typedef std::map<int, HttpResponse>  SendList_t;
 class HttpTask: public Task
@@ -44,7 +43,7 @@ public:
     
     int start(const char* ip, int port, int task_count);
     void setHttpCallback(const HttpCallback_t& callback);
-    void addLoopFunc(IOLoop::Function_t func);
+    void addLoopFunc(Function_t func);
     static void addResponseList(int fd, const HttpResponse& res);
     static void sendResponseList();
     

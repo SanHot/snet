@@ -7,7 +7,6 @@
 //
 
 #include "IOLoop.h"
-#include "Log.h"
 #include "http/HttpServer.h"
 
 void callback(uint8_t method, const std::string& url, HttpResponse* res) {

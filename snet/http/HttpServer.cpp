@@ -7,6 +7,9 @@
 //
 
 #include "HttpServer.h"
+#include "../IOLoop.h"
+#include "../TcpStream.h"
+#include "../Log.h"
 
 MUTEX_T HttpServer::s_mtx;
 SendList_t HttpServer::s_sendList;
@@ -41,7 +44,7 @@ void HttpServer::setHttpCallback(const HttpCallback_t& callback) {
     m_httpCallback = callback;
 }
 
-void HttpServer::addLoopFunc(IOLoop::Function_t func) {
+void HttpServer::addLoopFunc(Function_t func) {
     m_loop->add_handle(func);
 }
 
@@ -99,7 +102,7 @@ void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
 }
 
 void HttpServer::onWriten(const StreamPtr_t& stream) {
-//    LOG_STDOUT("OnWriten(%d): Done", stream->fd());
+    LOG_STDOUT("OnWriten(%d): Done", stream->fd());
     stream->async_close();
 }
 
