@@ -10,6 +10,24 @@
 #include "Log.h"
 #include "stdafx_net.h"
 
+int BaseSocket::START_UP() {
+#ifdef WIN32
+    WSADATA wsaData;
+    WORD wReqest = MAKEWORD(1, 1);
+    if (WSAStartup(wReqest, &wsaData) != 0)
+        return -1;
+#endif
+    return 0;
+}
+
+int BaseSocket::CLEAN_UP() {
+#ifdef WIN32
+    if (WSACleanup() != 0)
+        return -1;
+#endif
+    return 0;
+}
+
 int BaseSocket::init_fd(){
     int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     return fd;

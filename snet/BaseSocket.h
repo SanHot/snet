@@ -13,6 +13,8 @@
 
 struct BaseSocket
 {
+    static int START_UP();
+    static int CLEAN_UP();
     static int init_fd();
     static int close_fd(int fd);
     static int start_listen(int fd, const char* ip, int port);
