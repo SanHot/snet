@@ -57,6 +57,7 @@ public:
     void setWritenCallback(const WriteCompleteCallback_t& callback) {m_write_callback = callback;}
     void setErrorCallback(const ErrorCallback_t& callback) {m_error_callback = callback;}
     void setCloseCallback(const CloseCallback_t& callback) {m_close_callback = callback;}
+    void setTimeOutCallback(int timeout, const TimerCallback_t& callback);
     
 protected:
     void handle_read_event(void* arg);
@@ -64,7 +65,7 @@ protected:
     void post_close_event(void* arg);
     void handle_close_event(void* arg);
     void handle_error_event(void* arg);
-//    void handle_timeout_event();
+    void handle_timeout_event(void* arg);
     
 public:
     class OptionKey {
@@ -121,6 +122,7 @@ private:
     ConnectionCallback_t m_connect_callback;
     ErrorCallback_t m_error_callback;
     CloseCallback_t m_close_callback;
+    TimerCallback_t m_timeout_callback;
 };
 
 #endif /* defined(__snet__IOStream__) */

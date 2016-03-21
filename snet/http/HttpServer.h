@@ -53,10 +53,12 @@ private:
     void onConn(const StreamPtr_t& stream);
     void onRead(const StreamPtr_t& stream , Buffer* buf);
     void onWriten(const StreamPtr_t& stream);
+    void onTimeout(const StreamPtr_t& stream, uint64_t current_tick);
     
 private:
     IOLoop* m_loop;
     StreamPtr_t m_svr;
+    uint64_t m_read_time;
     HttpCallback_t m_httpCallback;
     
     ThreadPool g_httpThreadPool;

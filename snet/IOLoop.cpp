@@ -10,6 +10,7 @@
 #include "IOEvent.h"
 #include "IOKevent.h"
 #include "Log.h"
+#include "Util.h"
 
 IOLoop::IOLoop()
 :m_started(false),m_poller(new Poller())
@@ -23,10 +24,6 @@ int IOLoop::start_loop() {
     return 0;
 }
 
-int IOLoop::add_handle(const Function_t& func) {
-    m_postEventList.push_back(func);
-    return 0;
-}
 int IOLoop::add_handle(IOEvent* ev) {
     return m_poller->add_handle(ev);
 }
@@ -35,6 +32,19 @@ int IOLoop::update_handle(IOEvent* ev, int next_events) {
 }
 int IOLoop::remove_handle(IOEvent* ev) {
     return m_poller->remove_handle(ev);
+}
+
+int IOLoop::add_handle(const Function_t& func) {
+    m_postEventList.push_back(func);
+    return 0;
+}
+int IOLoop::add_handle(int timeout, const Function_t& callback) {
+    TimeItem_t* pTime = new TimeItem_t;
+    pTime->callback = callback;
+    pTime->timeout = timeout;
+    pTime->next_tick = get_tick() + timeout;
+    m_timeEventList.push_back(pTime);
+    return 0;
 }
 
 void IOLoop::loop() {
@@ -46,11 +56,23 @@ void IOLoop::loop() {
             IOEvent* ev = *it;
             ev->handleEvent((void*)&ret);
         }
-        PostEvent postFun;
-        postFun.swap(m_postEventList);
+        TimeEventList_t timeObj;
+        timeObj.swap(m_timeEventList);
+        uint64_t now = get_tick();
+        for (TimeItem_t* it : timeObj) {
+            if (now >= it->next_tick) {
+                it->callback((void*)&now);
+                delete it;
+            }
+            else {
+                m_timeEventList.push_back(it);
+            }
+        }
+        PostEventList_t postFunList;
+        postFunList.swap(m_postEventList);
         //LOG_STDOUT("Loop: Start run FuncHandler");
-        for (size_t i = 0; i < postFun.size(); ++i){
-            postFun[i](NULL);
+        for (Function_t& it : postFunList){
+            it(NULL);
         }
     }
 }

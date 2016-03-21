@@ -194,9 +194,16 @@ void TcpStream::handle_close_event(void* arg) {
         svr->m_close_callback(addr);
 }
 
-void TcpStream::handle_error_event(void *arg) {
+void TcpStream::handle_error_event(void* arg) {
     if (m_error_callback != NULL)
         m_error_callback(m_peer_addr, arg);
+}
+
+void TcpStream::handle_timeout_event(void* arg) {
+    uint64_t now = *((uint64_t *)arg);
+    if (m_timeout_callback) {
+        m_timeout_callback(shared_from_this(), now);
+    }
 }
 
 int TcpStream::async_listening(const char* ip, int port, const ConnectionCallback_t& callback) {
@@ -271,4 +278,8 @@ int TcpStream::async_read_until(char delimiter, const ReadMessageCallback_t& cal
     return 0;
 }
 
-
+void TcpStream::setTimeOutCallback(int timeout, const TimerCallback_t &callback) {
+    m_timeout_callback = callback;
+    if (m_status != STATE_CONNECTING)
+        m_loop->add_handle(timeout, std::bind(&TcpStream::handle_timeout_event, this, std::placeholders::_1));
+}

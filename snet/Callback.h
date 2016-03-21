@@ -19,7 +19,7 @@ class Buffer;
 typedef std::shared_ptr<TcpStream> StreamPtr_t;
 typedef std::map<int, StreamPtr_t> StreamMap_t;
 
-typedef std::function<void()> TimerCallback_t;
+typedef std::function<void (const StreamPtr_t&, uint64_t)> TimerCallback_t;
 typedef std::function<void (const StreamPtr_t&)> ConnectionCallback_t;
 typedef std::function<void (const IPAddress&)> CloseCallback_t;
 typedef std::function<void (const IPAddress&, void*)> ErrorCallback_t;

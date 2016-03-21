@@ -15,13 +15,9 @@
 TypeName(const TypeName&);                         \
 void operator=(const TypeName&)
 
-struct Util
-{
-    static int setSleep(int millisecond);
-    static int isFileExist(const char* path);
-    static char *GetIniKeyString(char *title,char *key,char *filename);
-    static std::wstring utf8_to_wstring(const std::string& str);
-    static std::string wstring_to_utf8(const std::wstring& str);
-};
+int setSleep(int millisecond);
+uint64_t get_tick();
+int isFileExist(const char* path);
+char *GetIniKeyString(char *title,char *key,char *filename);
 
 #endif /* defined(__snet__Util__) */

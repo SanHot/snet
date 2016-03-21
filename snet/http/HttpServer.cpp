@@ -74,12 +74,14 @@ void HttpServer::runInLoop(void* arg) {
 
 void HttpServer::onConn(const StreamPtr_t& stream) {
     stream->setWritenCallback(std::bind(&HttpServer::onWriten, this, std::placeholders::_1));
+    stream->setTimeOutCallback(10*1000, std::bind(&HttpServer::onTimeout, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
     HttpParserObj* obj = HttpParserObj::GetInstance();
     obj->parseBuffer(buf->buffer(), buf->offset());
-//    LOG_STDOUT("Request: %s", buf);
+    m_read_time = get_tick();
+//    LOG_STDOUT("OnRequest: %s", buf);
     
     if (obj->ready()) {
         LOG_STDOUT("Url: %s", obj->url().c_str());
@@ -88,7 +90,6 @@ void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
 //        HttpResponse res;
 //        res.setHttp404Status();
 //        HttpServer::addResponseList(stream->fd(), res);
-        
 
         HttpTask* tsk = new HttpTask(stream->fd(),obj->method(), obj->url());
         tsk->setHttpCallback(m_httpCallback);
@@ -98,5 +99,16 @@ void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
 }
 
 void HttpServer::onWriten(const StreamPtr_t& stream) {
+//    LOG_STDOUT("OnWriten(%d): Done", stream->fd());
     stream->async_close();
+}
+
+void HttpServer::onTimeout(const StreamPtr_t &stream, uint64_t current_tick) {
+    if ((current_tick - m_read_time) >= 30000) {
+//        LOG_STDOUT("OnTimeOut(%d): %d", stream->fd(), current_tick);
+        stream->async_close();
+    }
+    else {
+        stream->setTimeOutCallback(10*1000, std::bind(&HttpServer::onTimeout, this, std::placeholders::_1, std::placeholders::_2));
+    }
 }
