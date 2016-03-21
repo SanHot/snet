@@ -28,8 +28,8 @@ TcpStream::TcpStream(IOLoop* loop, int fd)
 ,m_fd(fd)
 ,m_ev(NULL)
 ,m_status(STATE_UNINIT)
-,m_write_buffer_size(1024)
-,m_read_buffer_size(1024)
+,m_write_buffer_size(1048576)
+,m_read_buffer_size(1048576)
 {
     if(m_fd == -1) {
         m_fd = BaseSocket::init_fd();
@@ -89,9 +89,6 @@ void TcpStream::handle_read_event(void* arg) {
 //        if (m_status == STATE_CLOSING)
 //            return;
         assert(m_status == STATE_CONNECTED);
-//        char buf[m_read_buffer_size];
-//        memset(buf, 0, m_read_buffer_size);
-//        ssize_t ret = ::recv(m_fd, buf, m_read_buffer_size, 0);
         uint32_t free = m_readBuffer.size() - m_readBuffer.offset();
         if (free < m_read_buffer_size + 1)
             m_readBuffer.extend(m_read_buffer_size + 1);
@@ -145,14 +142,11 @@ void TcpStream::handle_write_event(void* arg) {
             }
             
             struct iovec vector;
-            //vector.iov_base = (void*)m_sendBuffer.data();
             vector.iov_base = m_sendBuffer.buffer();
             vector.iov_len = m_sendBuffer.offset();
-            
             ssize_t ret = ::writev(m_fd, &vector, 1);
             LOG_STDOUT("Write(%d): %d", m_fd, (int)ret);
             if (ret == m_sendBuffer.offset()) {
-                //std::string().swap(m_sendBuffer);
                 m_sendBuffer.clear();
                 m_ev->setWriting(false);
                 if (m_write_callback != NULL)
@@ -162,7 +156,6 @@ void TcpStream::handle_write_event(void* arg) {
             else if (ret < 0) {
                 int err = errno;
                 if (err != EAGAIN && err != EWOULDBLOCK) {
-                    //std::string().swap(m_sendBuffer);
                     m_sendBuffer.clear();
                     m_ev->setWriting(false);
                     LOG_STDOUT("WRITE_EVENT(%d): error(%d)", m_fd, err);
@@ -170,12 +163,11 @@ void TcpStream::handle_write_event(void* arg) {
                 }
             }
             else {
-                //m_sendBuffer = m_sendBuffer.substr(ret);
                 m_sendBuffer.read(NULL, (int)ret);
             }
         }
     }
-    //完成一次write事件
+//    完成一次write事件
     m_ev->setWriting(false);
 }
 
@@ -258,7 +250,6 @@ int TcpStream::async_write(const char* data, int len) {
 }
 
 int TcpStream::async_write(const char* data, int len, const WriteCompleteCallback_t& callback) {
-    //m_sendBuffer += std::string(data, len);
     m_sendBuffer.write((void*)data, len);
     m_write_callback = callback;
     m_ev->setWriting(true);

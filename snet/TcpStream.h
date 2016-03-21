@@ -64,6 +64,7 @@ protected:
     void post_close_event(void* arg);
     void handle_close_event(void* arg);
     void handle_error_event(void* arg);
+//    void handle_timeout_event();
     
 public:
     class OptionKey {

@@ -89,8 +89,10 @@ void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
 //        res.setHttp404Status();
 //        HttpServer::addResponseList(stream->fd(), res);
         
+
         HttpTask* tsk = new HttpTask(stream->fd(),obj->method(), obj->url());
         tsk->setHttpCallback(m_httpCallback);
+//      线程池中会delete
         g_httpThreadPool.addTask(tsk);
     }
 }

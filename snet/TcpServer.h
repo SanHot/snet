@@ -9,7 +9,7 @@
 #ifndef TcpServer_h
 #define TcpServer_h
 
-#include "IOStream.h"
+#include "TcpStream.h"
 
 class TcpServer {
     
