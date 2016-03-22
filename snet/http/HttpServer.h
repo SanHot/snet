@@ -23,8 +23,7 @@ typedef std::map<int, HttpResponse>  SendList_t;
 class HttpTask: public Task
 {
 public:
-    HttpTask(int fd, uint8_t method, std::string url):m_fd(fd),m_method(method),m_url(url)
-    {}
+    HttpTask(int fd, uint8_t method, std::string url);
     virtual ~HttpTask() {}
     void setHttpCallback(HttpCallback_t callback) {m_callback = callback;}
     void run();

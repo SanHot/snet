@@ -3,6 +3,7 @@
 //
 
 #ifdef _WIN32
+#include <algorithm>
 #include "IOSelect.h"
 #include "IOEvent.h"
 #include "Log.h"
@@ -23,38 +24,47 @@ int IOSelect::processEvent(EventList* activeList) {
     timeout.tv_sec = 0; //秒
     timeout.tv_usec = MIN_TIMER_DURATION * 1000;//u秒
 
-    fd_set read_set, write_set, excep_set;
+    fd_set read_set, write_set, error_set;
     {
-        MUTEXGUARD_T(m_mtx);
+//        MUTEXGUARD_T(m_mtx);
         memcpy(&read_set, &m_read_set, sizeof(fd_set));
         memcpy(&write_set, &m_write_set, sizeof(fd_set));
-        memcpy(&excep_set, &m_error_set, sizeof(fd_set));
+        memcpy(&error_set, &m_error_set, sizeof(fd_set));
     }
 
-    int ret = select(0, &read_set, &write_set, &excep_set, &timeout);
-    if (ret == SOCKET_ERROR)
+    int ret = select(0, &read_set, &write_set, &error_set, &timeout);
+    if (ret == SOCKET_ERROR) {
+        int err = WSAGetLastError();
+        LOG_STDOUT("ProcessEvent-select: %d", err);
+        Sleep(MIN_TIMER_DURATION);
         return ret;
-    for (int i = 0; i < read_set.fd_count; i++)
-    {
+    }
+    for (int i = 0; i < read_set.fd_count; i++) {
         SOCKET ev_fd = read_set.fd_array[i];
         auto it = m_event_map.find((int)ev_fd);
         IOEvent* io = it->second;
         io->poll_events = EVENT_READ;
         activeList->push_back(io);
     }
-    for (int i = 0; i < write_set.fd_count; i++)
-    {
+
+    for (int i = 0; i < write_set.fd_count; i++) {
         SOCKET ev_fd = write_set.fd_array[i];
         auto it = m_event_map.find((int)ev_fd);
         IOEvent* io = it->second;
-        io->poll_events = EVENT_READ;
-        activeList->push_back(io);
+        if(std::find(activeList->begin(), activeList->end(), io) == activeList->end()) {
+            io->poll_events = EVENT_WRITE;
+            activeList->push_back(io);
+        }
+        else {
+            io->poll_events |= EVENT_WRITE;
+        }
     }
+
     return 0;
 }
 
 int IOSelect::add_handle(IOEvent* ev) {
-    MUTEXGUARD_T(m_mtx);
+//    MUTEXGUARD_T(m_mtx);
     int fd = ev->fd();
     if ((ev->events & EVENT_READ) != 0) {
         FD_SET(fd, &m_read_set);
@@ -77,7 +87,7 @@ int IOSelect::update_handle(IOEvent* ev, int next_events) {
         add_handle(ev);
     }
     else {
-        MUTEXGUARD_T(m_mtx);
+//        MUTEXGUARD_T(m_mtx);
         if ((next_events & EVENT_READ) != 0) {
             if ((ev->events & EVENT_READ) == 0)
                 FD_SET(fd, &m_read_set);
@@ -100,7 +110,7 @@ int IOSelect::update_handle(IOEvent* ev, int next_events) {
 }
 
 int IOSelect::remove_handle(IOEvent* ev) {
-    MUTEXGUARD_T(m_mtx);
+//    MUTEXGUARD_T(m_mtx);
     int fd = ev->fd();
     int events = m_event_map[fd]->events;
     if ((events & EVENT_READ) != 0) {
@@ -109,7 +119,7 @@ int IOSelect::remove_handle(IOEvent* ev) {
     if ((events & EVENT_WRITE) != 0) {
         FD_CLR(fd, &m_write_set);
     }
-    if ((events & EVENT_WRITE) != 0) {
+    if ((events & EVENT_ERROR) != 0) {
         FD_CLR(fd, &m_error_set);
     }
 

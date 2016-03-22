@@ -15,7 +15,6 @@
 #include "IOLoop.h"
 #include "IOEvent.h"
 #include "Log.h"
-#include "Util.h"
 
 IOLoop::IOLoop()
 :m_started(false),m_poller(new Poller())

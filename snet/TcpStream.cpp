@@ -39,6 +39,7 @@ TcpStream::TcpStream(IOLoop* loop, int fd)
     m_ev = new IOEvent(m_loop, m_fd);
     m_ev->setReadCallback(std::bind(&TcpStream::handle_read_event, this, std::placeholders::_1));
     m_ev->setWriteCallback(std::bind(&TcpStream::handle_write_event, this, std::placeholders::_1));
+//    m_ev->setErrorCallback(std::bind(&TcpStream::handle_error_event, this, std::placeholders::_1));
 }
 
 TcpStream::~TcpStream()
@@ -145,7 +146,7 @@ void TcpStream::handle_write_event(void* arg) {
             }
 
 #ifdef _WIN32
-            ssize_t ret = ::write(m_fd, m_sendBuffer.buffer(), m_sendBuffer.offset());
+            ssize_t ret = ::send(m_fd, m_sendBuffer.buffer(), m_sendBuffer.offset(), 0);
 #else
             struct iovec vector;
             vector.iov_base = m_sendBuffer.buffer();

@@ -38,23 +38,28 @@ void IOEvent::setWriting(bool isWriting) {
     m_loop->update_handle(this, next_events);
 }
 void IOEvent::setClosing() {
-    events = EVENT_NONE;
     m_loop->remove_handle(this);
+    events = EVENT_NONE;
 }
 
 void IOEvent::handleEvent(void* arg) {
     if (events & EVENT_NONE) {
         return;
     }
-    if (isReading() && poll_events == EVENT_READ) {
-        LOG_STDOUT("HandleEvent: reading");
+    if (isReading() && (poll_events & EVENT_READ) != 0) {
+//        LOG_STDOUT("HandleEvent: reading");
         if (m_read_callback)
             m_read_callback(arg);
     }
-    if (isWriting() && poll_events == EVENT_WRITE) {
-        LOG_STDOUT("HandleEvent: writing");
+    if (isWriting() && (poll_events & EVENT_WRITE) != 0) {
+//        LOG_STDOUT("HandleEvent: writing");
         if (m_write_callback)
             m_write_callback(NULL);
+    }
+    if(poll_events == EVENT_ERROR) {
+//        LOG_STDOUT("HandleEvent: error");
+        if(m_error_callback)
+            m_error_callback(NULL);
     }
 }
 

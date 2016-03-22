@@ -14,6 +14,9 @@
 MUTEX_T HttpServer::s_mtx;
 SendList_t HttpServer::s_sendList;
 
+HttpTask::HttpTask(int fd, uint8_t method, std::string url):m_fd(fd),m_method(method),m_url(url)
+{}
+
 void HttpTask::run() {
     HttpResponse res;
     if(m_callback)
@@ -25,14 +28,16 @@ void HttpTask::run() {
 }
 
 HttpServer::HttpServer(IOLoop* loop):m_loop(loop) {
-    m_svr = std::make_shared<TcpStream>(m_loop);
+    BaseSocket::START_UP();
 }
 
 HttpServer::~HttpServer() {
+    BaseSocket::CLEAN_UP();
     delete m_loop;
 }
 
 int HttpServer::start(const char* ip, int port, int task_count) {
+    m_svr = std::make_shared<TcpStream>(m_loop);
     g_httpThreadPool.init(task_count);
     m_svr->async_listening(ip, port, std::bind(&HttpServer::onConn, this, std::placeholders::_1));
     m_svr->async_read(std::bind(&HttpServer::onRead, this, std::placeholders::_1, std::placeholders::_2));

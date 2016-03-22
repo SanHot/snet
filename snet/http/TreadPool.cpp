@@ -8,7 +8,6 @@
 
 #include "TreadPool.h"
 
-
 void* WorkerThread::startRoutine(void *arg) {
     WorkerThread* pThread = (WorkerThread*) arg;
     pThread->working();
