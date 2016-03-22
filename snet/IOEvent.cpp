@@ -8,6 +8,7 @@
 
 #include "IOEvent.h"
 #include "IOLoop.h"
+#include "Log.h"
 
 IOEvent::IOEvent(IOLoop* loop, int fd)
 :m_loop(loop)
@@ -45,17 +46,15 @@ void IOEvent::handleEvent(void* arg) {
     if (events & EVENT_NONE) {
         return;
     }
-    //if (poll_events == EVFILT_READ) {
-    if (isReading()) {
-        if (m_read_callback) {
+    if (isReading() && poll_events == EVENT_READ) {
+        LOG_STDOUT("HandleEvent: reading");
+        if (m_read_callback)
             m_read_callback(arg);
-        }
     }
-    //if (poll_events == EVFILT_WRITE) {
-    if (isWriting()) {
-        if (m_write_callback) {
+    if (isWriting() && poll_events == EVENT_WRITE) {
+        LOG_STDOUT("HandleEvent: writing");
+        if (m_write_callback)
             m_write_callback(NULL);
-        }
     }
 }
 

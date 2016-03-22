@@ -32,11 +32,10 @@ int IOSelect::processEvent(EventList* activeList) {
     }
 
     int ret = select(0, &read_set, &write_set, &excep_set, &timeout);
-    if (ret == SOCKET_ERROR || ret == 0) {
+    if (ret == SOCKET_ERROR)
         return ret;
-    }
     for (int i = 0; i < read_set.fd_count; i++)
-    {//响应事件
+    {
         SOCKET ev_fd = read_set.fd_array[i];
         auto it = m_event_map.find((int)ev_fd);
         IOEvent* io = it->second;

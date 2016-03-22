@@ -38,14 +38,15 @@ int IOKevent::processEvent(EventList* activeList) {
         uintptr_t ev_fd = kevents[i].ident;
         auto it = m_event_map.find((int)ev_fd);
         IOEvent* io = it->second;
+        io->poll_events = EVENT_NONE;
         
         if (kevents[i].filter == EVFILT_READ) {
             //LOG_STDOUT("EVFILT_READ: socket=(%d)", (int)ev_fd);
-            io->poll_events = EVFILT_READ;
+            io->poll_events |= EVENT_READ;
         }
         if (kevents[i].filter == EVFILT_WRITE) {
             //LOG_STDOUT("EVFILT_WRITE: socket=(%d)", (int)ev_fd);
-            io->poll_events = EVFILT_WRITE;
+            io->poll_events |= EVENT_WRITE;
         }
         activeList->push_back(io);
     }
