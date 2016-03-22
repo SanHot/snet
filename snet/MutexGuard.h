@@ -37,7 +37,7 @@ public:
     
 private:
     DISALLOW_EVIL_CONSTRUCTORS(Mutex);
-#ifdef WIN32
+#ifdef _WIN32
     uint32_t m_threadId;
 #else
     pthread_t m_threadId;

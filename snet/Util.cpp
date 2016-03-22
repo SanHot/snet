@@ -14,7 +14,7 @@
 #define MAX_LOG_FILE_SIZE	0x4000000
 
 int setSleep(int millisecond) {
-#ifdef WIN32
+#ifdef _WIN32
     Sleep(millisecond);
 #else
     int sec = (int)(millisecond / 1000);
@@ -28,7 +28,6 @@ int setSleep(int millisecond) {
 uint64_t get_tick() {
     struct timeval tval;
     gettimeofday(&tval, NULL);
-    
     return tval.tv_sec * 1000L + tval.tv_usec / 1000L;
 }
 
@@ -57,7 +56,7 @@ char* GetIniKeyString(char *title, char *key, char *filename) {
             szLine[i++] = rtnval;
         
         if(rtnval == '\n') {
-#ifndef WIN32
+#ifndef _WIN32
             i--;
 #endif
             szLine[--i] = '\0';

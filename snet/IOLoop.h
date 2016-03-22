@@ -14,8 +14,13 @@
 
 class MutexGuard;
 class IOEvent;
+#ifdef _WIN32
+class IOSelect;
+#define Poller IOSelect
+#else
 class IOKevent;
 #define Poller IOKevent
+#endif
 
 class IOLoop
 {
@@ -29,7 +34,7 @@ public:
     int remove_handle(IOEvent* ev);
     
     int add_handle(const Function_t& func);
-    TimeItem_t* add_timer(int timeout, const Function_t& callback);
+    TimeItem_t* add_timer(uint64_t timeout, const Function_t& callback);
     int remove_timer(const TimeItem_t* timer);
     
 private:

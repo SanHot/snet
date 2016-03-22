@@ -54,7 +54,7 @@ public:
     void setWritenCallback(const WriteCompleteCallback_t& callback) {m_write_callback = callback;}
     void setErrorCallback(const ErrorCallback_t& callback) {m_error_callback = callback;}
     void setCloseCallback(const CloseCallback_t& callback) {m_close_callback = callback;}
-    void setTimeOutCallback(int timeout, const TimerCallback_t& callback);
+    void setTimeOutCallback(uint32_t timeout, const TimerCallback_t& callback);
     
 protected:
     void handle_read_event(void* arg);
@@ -74,7 +74,7 @@ public:
             return level < other.level;
         }
         int apply(int fd, int val) const {
-            return setsockopt(fd, level, optname, &val, sizeof(val));
+            return setsockopt(fd, level, optname, (char*)&val, sizeof(val));
         }
         int level;
         int optname;
@@ -85,7 +85,7 @@ public:
     
     template <typename T>
     int getSockOpt(int level, int optname, T* optval, socklen_t* optlen) {
-        return getsockopt(m_fd, level, optname, (void*)optval, optlen);
+        return getsockopt(m_fd, level, optname, (char*)optval, optlen);
     }
     
     template <typename T>

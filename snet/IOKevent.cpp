@@ -6,11 +6,11 @@
 //  Copyright (c) 2015年 ___SAN___. All rights reserved.
 //
 
+#ifdef __APPLE__
 #include <sys/event.h>
 #include "IOKevent.h"
 #include "IOEvent.h"
 #include "Log.h"
-
 #define MIN_TIMER_DURATION 100 //ms
 
 IOKevent::IOKevent()
@@ -131,3 +131,5 @@ bool IOKevent::isPollReading(int fd) {
 bool IOKevent::isPollWriting(int fd) {
     return false;
 }
+
+#endif

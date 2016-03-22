@@ -11,7 +11,7 @@
 #include "stdafx_net.h"
 
 int BaseSocket::START_UP() {
-#ifdef WIN32
+#ifdef _WIN32
     WSADATA wsaData;
     WORD wReqest = MAKEWORD(1, 1);
     if (WSAStartup(wReqest, &wsaData) != 0)
@@ -21,7 +21,7 @@ int BaseSocket::START_UP() {
 }
 
 int BaseSocket::CLEAN_UP() {
-#ifdef WIN32
+#ifdef _WIN32
     if (WSACleanup() != 0)
         return -1;
 #endif
@@ -89,7 +89,7 @@ int BaseSocket::connect(int fd, const char* ip, int port) {
 
 int BaseSocket::get_arrivals(int fd) {
     u_long reach_count = 0;
-#ifdef WIN32
+#ifdef _WIN32
     int ret = ioctlsocket(fd, FIONREAD, &reach_count);
 #else
     int ret = ioctl(fd, FIONREAD, &reach_count);
@@ -108,7 +108,7 @@ int BaseSocket::set_reuse_addr(int fd, bool on) {
 }
 
 int BaseSocket::set_non_block(int fd) {
-#ifdef WIN32
+#ifdef _WIN32
     u_long nonblock = 1;
     return ioctlsocket(fd, FIONBIO, &nonblock);
 #else
@@ -127,7 +127,7 @@ int BaseSocket::is_blocking(int error_code) {
 }
 
 int BaseSocket::get_error_code() {
-#ifdef WIN32
+#ifdef _WIN32
     return WSAGetLastError();
 #else
     return errno;

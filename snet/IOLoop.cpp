@@ -6,10 +6,14 @@
 //  Copyright © 2016年 ___SAN___. All rights reserved.
 //
 
+#ifdef _WIN32
+#include "IOSelect.h"
+#else
+#include "IOKevent.h"
+#endif
 #include <algorithm>
 #include "IOLoop.h"
 #include "IOEvent.h"
-#include "IOKevent.h"
 #include "Log.h"
 #include "Util.h"
 
@@ -40,7 +44,7 @@ int IOLoop::add_handle(const Function_t& func) {
     return 0;
 }
 
-TimeItem_t* IOLoop::add_timer(int timeout, const Function_t& callback) {
+TimeItem_t* IOLoop::add_timer(uint64_t timeout, const Function_t& callback) {
     TimeItem_t* pTime = new TimeItem_t;
     pTime->callback = callback;
     pTime->timeout = timeout;

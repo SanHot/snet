@@ -25,7 +25,10 @@
 #include <mutex>
 
 #ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <windows.h>
+#define random rand
 #else
 #include <sys/ioctl.h>
 #include <fcntl.h>

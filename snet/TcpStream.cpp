@@ -118,7 +118,7 @@ void TcpStream::handle_read_event(void* arg) {
 void TcpStream::handle_write_event(void* arg) {
     if (m_status == STATE_CONNECTING) {
         int err = 0;
-#ifdef WIN32
+#ifdef _WIN32
         int len = sizeof(err);
         getsockopt(m_fd, SOL_SOCKET, SO_ERROR, (char*)&err, &len);
 #else
@@ -144,7 +144,7 @@ void TcpStream::handle_write_event(void* arg) {
                 return;
             }
 
-#ifdef WIN32
+#ifdef _WIN32
             ssize_t ret = ::write(m_fd, m_sendBuffer.buffer(), m_sendBuffer.offset());
 #else
             struct iovec vector;
@@ -170,7 +170,7 @@ void TcpStream::handle_write_event(void* arg) {
                 }
             }
             else {
-                m_sendBuffer.read(NULL, (int)ret);
+                m_sendBuffer.read(NULL, (uint32_t)ret);
             }
         }
     }
@@ -194,7 +194,7 @@ void TcpStream::handle_close_event(void* arg) {
     m_ev->setClosing();
     size_t n = g_streamMap.erase(lcl_fd);
     assert(n == 1);
-#ifdef WIN32
+#ifdef _WIN32
     ::closesocket(lcl_fd);
 #else
     ::close(lcl_fd);
@@ -290,7 +290,7 @@ int TcpStream::async_read_until(char delimiter, const ReadMessageCallback_t& cal
     return 0;
 }
 
-void TcpStream::setTimeOutCallback(int timeout, const TimerCallback_t &callback) {
+void TcpStream::setTimeOutCallback(uint32_t timeout, const TimerCallback_t &callback) {
     m_timeout_callback = callback;
     if (m_status != STATE_CONNECTING) {
         m_timer = m_loop->add_timer(timeout, std::bind(&TcpStream::handle_timeout_event, this, std::placeholders::_1));

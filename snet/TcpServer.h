@@ -26,6 +26,7 @@ public:
 private:
     IOLoop* m_loop;
     StreamPtr_t m_svr;
+    SOCKET m_fd;
 };
 
 #endif /* TcpServer_h */

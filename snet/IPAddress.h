@@ -19,7 +19,7 @@ public:
     ~IPAddress() {}
     
     IPAddress(const std::string& ip, uint16_t port, int fd) {
-#ifdef WIN32
+#ifdef _WIN32
         ZeroMemory(&m_addr,  sizeof(m_addr));
 #else
         bzero(&m_addr, sizeof(m_addr));
@@ -101,7 +101,7 @@ private:
         return uint32_t(-1);
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     int inet_pton(int af, const char *src, void *dst) {
         struct sockaddr_storage ss;
         int size = sizeof(ss);
