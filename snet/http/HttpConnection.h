@@ -9,7 +9,6 @@
 #ifndef HttpConnection_h
 #define HttpConnection_h
 
-#include "../stdafx.h"
 #include "../TcpStream.h"
 #include "../Callback.h"
 #include "../Buffer.h"

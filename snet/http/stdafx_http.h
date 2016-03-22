@@ -9,14 +9,15 @@
 #ifndef stdafx_http_h
 #define stdafx_http_h
 
+#define JOINTCOM_FLAG "Jointcom/snet"
+#define CONTEXT_TYPE_DATE "multipart/form-data"
+#define CONTEXT_TYPE_HTML "text/html;charset=utf-8"
+#define CONTEXT_TYPE_PLAIN "text/plain;charset=utf-8"
+
 #define HTTP_RESPONSE_HEADER    "HTTP/1.1 200 OK\r\n"\
                                 "Connection:close\r\n"\
                                 "Content-Length:%d\r\n"\
                                 "Content-Type:multipart/form-data\r\n\r\n"
-#define HTTP_RESPONSE_EXTEND        "HTTP/1.1 200 OK\r\n"\
-                                    "Connection:close\r\n"\
-                                    "Content-Length:%d\r\n"\
-                                    "Content-Type:multipart/form-data\r\n\r\n"
 #define HTTP_RESPONSE_HTML          "HTTP/1.1 200 OK\r\n"\
                                     "Connection:close\r\n"\
                                     "Content-Length:%d\r\n"\

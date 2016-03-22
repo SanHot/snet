@@ -9,10 +9,10 @@
 #ifndef HttpParserObj_h
 #define HttpParserObj_h
 
-#include "http_parser.h"
-#include "../Buffer.h"
 #include "../stdafx.h"
+#include "http_parser.h"
 
+class Buffer;
 class HttpParserObj {
 public:
     virtual ~HttpParserObj() {}

@@ -9,7 +9,6 @@
 #ifndef HttpServer_hpp
 #define HttpServer_hpp
 
-#include "../stdafx.h"
 #include "../MutexGuard.h"
 #include "../Callback.h"
 #include "HttpResponse.h"

@@ -6,6 +6,7 @@
 //  Copyright © 2016年 ___SAN___. All rights reserved.
 //
 
+#include "../Buffer.h"
 #include "HttpParserObj.h"
 
 HttpParserObj* HttpParserObj::m_instance = NULL;

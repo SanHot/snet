@@ -12,15 +12,15 @@
 void callback(uint8_t method, const std::string& url, HttpResponse* res) {
     if (url == "/") {
         res->setStatusCode(HttpResponse::HTTP_OK);
-        res->setContentType("text/html");
-        res->addHeader("Server", "Jointcom/snet1.0");
+        res->setContentType(CONTEXT_TYPE_HTML);
+        res->addHeader("Server", JOINTCOM_FLAG);
         res->setBody("<html><head><title>This is title</title></head>"
                       "<body><h1>Hello</h1>Now is 8:54"
                       "</body></html>");
     }
     else if (url == "/hello") {
         res->setStatusCode(HttpResponse::HTTP_OK);
-        res->setContentType("text/plain");
+        res->setContentType(CONTEXT_TYPE_PLAIN);
         res->addHeader("Server", "Jointcom/snet1.0");
         res->setBody("hello, world!\n");
     }

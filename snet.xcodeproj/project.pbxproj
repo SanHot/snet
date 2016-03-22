@@ -12,6 +12,7 @@
 		262E66341C8AC3AF00C9D7DB /* http_parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 262E66321C8AC3AF00C9D7DB /* http_parser.c */; };
 		262E66361C8ACB8A00C9D7DB /* HttpParserObj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 262E66351C8ACB8A00C9D7DB /* HttpParserObj.cpp */; };
 		267FA3531C8D431C004B12CF /* TreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 267FA3511C8D431C004B12CF /* TreadPool.cpp */; };
+		268C03951CA18486005DB92D /* HttpResponse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C03941CA18486005DB92D /* HttpResponse.cpp */; };
 		268DE00E1CA10B9F004D18A9 /* IOSelect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268DE00C1CA10B9F004D18A9 /* IOSelect.cpp */; };
 		26D883041B816D44003D1213 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26D883031B816D44003D1213 /* main.cpp */; };
 		26D8830F1B817377003D1213 /* BaseSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26D8830D1B817377003D1213 /* BaseSocket.cpp */; };
@@ -49,6 +50,7 @@
 		262E66371C8ACC2600C9D7DB /* HttpParserObj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpParserObj.h; path = http/HttpParserObj.h; sourceTree = "<group>"; };
 		267FA3511C8D431C004B12CF /* TreadPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TreadPool.cpp; path = http/TreadPool.cpp; sourceTree = "<group>"; };
 		267FA3521C8D431C004B12CF /* TreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TreadPool.h; path = http/TreadPool.h; sourceTree = "<group>"; };
+		268C03941CA18486005DB92D /* HttpResponse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpResponse.cpp; path = http/HttpResponse.cpp; sourceTree = "<group>"; };
 		268DE00C1CA10B9F004D18A9 /* IOSelect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IOSelect.cpp; sourceTree = "<group>"; };
 		268DE00D1CA10B9F004D18A9 /* IOSelect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSelect.h; sourceTree = "<group>"; };
 		26B5CA5E1BEE0EA900C17183 /* IOLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOLoop.h; sourceTree = "<group>"; };
@@ -141,12 +143,13 @@
 				262E66321C8AC3AF00C9D7DB /* http_parser.c */,
 				262E66331C8AC3AF00C9D7DB /* http_parser.h */,
 				26F2F7BC1C86F600009C2161 /* stdafx_http.h */,
+				26F078011C894F8B008D9BAA /* HttpConnection.h */,
 				26F2F7A71C8680F6009C2161 /* HttpServer.cpp */,
 				26F2F7A81C8680F6009C2161 /* HttpServer.h */,
-				26F078011C894F8B008D9BAA /* HttpConnection.h */,
+				268C03941CA18486005DB92D /* HttpResponse.cpp */,
 				26F2F7BA1C86EE87009C2161 /* HttpResponse.h */,
-				262E66371C8ACC2600C9D7DB /* HttpParserObj.h */,
 				262E66351C8ACB8A00C9D7DB /* HttpParserObj.cpp */,
+				262E66371C8ACC2600C9D7DB /* HttpParserObj.h */,
 				267FA3511C8D431C004B12CF /* TreadPool.cpp */,
 				267FA3521C8D431C004B12CF /* TreadPool.h */,
 			);
@@ -209,6 +212,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				268C03951CA18486005DB92D /* HttpResponse.cpp in Sources */,
 				26D8830F1B817377003D1213 /* BaseSocket.cpp in Sources */,
 				26F153FA1C85682D0044FEAB /* MutexGuard.cpp in Sources */,
 				26DF037A1B844F9500A73085 /* TcpStream.cpp in Sources */,
