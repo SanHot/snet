@@ -9,6 +9,7 @@ set(SOURCE_FILES
     snet/http/HttpConnection.h
     snet/http/HttpParserObj.cpp
     snet/http/HttpParserObj.h
+    snet/http/HttpResponse.cpp
     snet/http/HttpResponse.h
     snet/http/HttpServer.cpp
     snet/http/HttpServer.h
@@ -37,7 +38,9 @@ set(SOURCE_FILES
     snet/TcpStream.cpp
     snet/TcpStream.h
     snet/Util.cpp
-    snet/Util.h snet/IOSelect.cpp snet/IOSelect.h)
+    snet/Util.h
+    snet/IOSelect.cpp
+    snet/IOSelect.h)
 
 add_executable(snet ${SOURCE_FILES})
 if (WIN32)
