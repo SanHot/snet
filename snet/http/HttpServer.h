@@ -17,6 +17,7 @@
 
 class TcpStream;
 class IOLoop;
+class HttpTask;
 typedef std::function<void(uint8_t method, const std::string&, HttpResponse*)> HttpCallback_t;
 typedef std::map<int, HttpResponse>  SendList_t;
 class HttpTask: public Task
@@ -24,8 +25,10 @@ class HttpTask: public Task
 public:
     HttpTask(int fd, uint8_t method, std::string url);
     virtual ~HttpTask() {}
-    void setHttpCallback(HttpCallback_t callback) {m_callback = callback;}
     void run();
+    virtual void callback(uint8_t method, const std::string& url, HttpResponse* res);
+    void setHttpCallback(HttpCallback_t callback) {m_callback = callback;}
+
 private:
     int m_fd;
     int m_method;

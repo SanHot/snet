@@ -32,7 +32,7 @@ void WorkerThread::working() {
         
         pTask->run();
         delete pTask;
-        m_task_count++;
+//        m_task_count++;
     }
 }
 

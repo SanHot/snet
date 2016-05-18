@@ -48,6 +48,7 @@
 		262E66331C8AC3AF00C9D7DB /* http_parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http_parser.h; path = http/http_parser.h; sourceTree = "<group>"; };
 		262E66351C8ACB8A00C9D7DB /* HttpParserObj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpParserObj.cpp; path = http/HttpParserObj.cpp; sourceTree = "<group>"; };
 		262E66371C8ACC2600C9D7DB /* HttpParserObj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpParserObj.h; path = http/HttpParserObj.h; sourceTree = "<group>"; };
+		2671A5C81CE59E12009B8E53 /* tds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tds; sourceTree = "<group>"; };
 		267FA3511C8D431C004B12CF /* TreadPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TreadPool.cpp; path = http/TreadPool.cpp; sourceTree = "<group>"; };
 		267FA3521C8D431C004B12CF /* TreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TreadPool.h; path = http/TreadPool.h; sourceTree = "<group>"; };
 		268C03941CA18486005DB92D /* HttpResponse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpResponse.cpp; path = http/HttpResponse.cpp; sourceTree = "<group>"; };
@@ -107,6 +108,7 @@
 		26D883021B816D44003D1213 /* snet */ = {
 			isa = PBXGroup;
 			children = (
+				2671A5C81CE59E12009B8E53 /* tds */,
 				26F2F7AA1C8680FE009C2161 /* http */,
 				26D883031B816D44003D1213 /* main.cpp */,
 				260EE5E81C8425AC00082413 /* IPAddress.h */,

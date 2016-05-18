@@ -23,8 +23,23 @@ void HttpTask::run() {
         m_callback(m_method, m_url, &res);
     else
         res.setHttp404Status();
+//    callback(m_method, m_url, &res);
     res.setAlive(false);
     HttpServer::addResponseList(m_fd, res);
+}
+
+void HttpTask::callback(uint8_t method, const std::string& url, HttpResponse* res) {
+    if (url == "/") {
+        res->setStatusCode(HttpResponse::HTTP_OK);
+        res->setContentType(CONTEXT_TYPE_HTML);
+        res->addHeader("Server", JOINTCOM_FLAG);
+        res->setBody("<html><head><title>This is title</title></head>"
+                             "<body><h1>Hello</h1>Now is 8:54"
+                             "</body></html>");
+    }
+    else {
+        res->setHttp404Status();
+    }
 }
 
 HttpServer::HttpServer(IOLoop* loop):m_loop(loop) {
@@ -38,7 +53,8 @@ HttpServer::~HttpServer() {
 
 int HttpServer::start(const char* ip, int port, int task_count) {
     m_svr = std::make_shared<TcpStream>(m_loop);
-    g_httpThreadPool.init(task_count);
+    if(g_httpThreadPool.init(task_count) == -1)
+        return -1;
     m_svr->async_listening(ip, port, std::bind(&HttpServer::onConn, this, std::placeholders::_1));
     m_svr->async_read(std::bind(&HttpServer::onRead, this, std::placeholders::_1, std::placeholders::_2));
     m_loop->add_handle(std::bind(&HttpServer::runInLoop, this, std::placeholders::_1));
@@ -82,7 +98,9 @@ void HttpServer::runInLoop(void* arg) {
 
 void HttpServer::onConn(const StreamPtr_t& stream) {
     stream->setWritenCallback(std::bind(&HttpServer::onWriten, this, std::placeholders::_1));
-    stream->setTimeOutCallback(10*1000, std::bind(&HttpServer::onTimeout, this, std::placeholders::_1, std::placeholders::_2));
+    stream->setTimeOutCallback(10*1000,
+                               std::bind(&HttpServer::onTimeout, this,
+                                         std::placeholders::_1, std::placeholders::_2));
 }
 
 void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
@@ -101,8 +119,9 @@ void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
 
         HttpTask* tsk = new HttpTask(stream->fd(),obj->method(), obj->url());
         tsk->setHttpCallback(m_httpCallback);
-//      线程池中会delete
-        g_httpThreadPool.addTask(tsk);
+//      线程池中每个执行完毕的tsk会delete
+        if(tsk)
+            g_httpThreadPool.addTask(tsk);
     }
 }
 
@@ -117,6 +136,8 @@ void HttpServer::onTimeout(const StreamPtr_t &stream, uint64_t current_tick) {
         stream->async_close();
     }
     else {
-        stream->setTimeOutCallback(10*1000, std::bind(&HttpServer::onTimeout, this, std::placeholders::_1, std::placeholders::_2));
+        stream->setTimeOutCallback(10*1000,
+                                   std::bind(&HttpServer::onTimeout, this,
+                                             std::placeholders::_1, std::placeholders::_2));
     }
 }

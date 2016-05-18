@@ -23,7 +23,7 @@ public:
 class WorkerThread
 {
 public:
-    WorkerThread():m_task_count(0)
+    WorkerThread():m_index(0), m_task_count(0)
     {}
     ~WorkerThread() {}
     
