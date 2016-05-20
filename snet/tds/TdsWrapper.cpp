@@ -50,50 +50,6 @@ const char *TdsQuery::fieldValue(int nField) {
     return NULL;
 }
 
-const char *TdsQuery::fieldValue(const char *szField) {
-    return nullptr;
-}
-
-int TdsQuery::getIntField(int nField, int nNullValue) {
-    return 0;
-}
-
-int TdsQuery::getIntField(const char *szField, int nNullValue) {
-    return 0;
-}
-
-double TdsQuery::getFloatField(int nField, double fNullValue) {
-    return 0;
-}
-
-double TdsQuery::getFloatField(const char *szField, double fNullValue) {
-    return 0;
-}
-
-const char *TdsQuery::getStringField(int nField, const char *szNullValue) {
-    return nullptr;
-}
-
-const char *TdsQuery::getStringField(const char *szField, const char *szNullValue) {
-    return nullptr;
-}
-
-const unsigned char *TdsQuery::getBlobField(int nField, int &nLen) {
-    return nullptr;
-}
-
-const unsigned char *TdsQuery::getBlobField(const char *szField, int &nLen) {
-    return nullptr;
-}
-
-bool TdsQuery::fieldIsNull(int nField) {
-    return false;
-}
-
-bool TdsQuery::fieldIsNull(const char *szField) {
-    return false;
-}
-
 bool TdsQuery::eof() {
     return m_eof;
 }

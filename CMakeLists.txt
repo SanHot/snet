@@ -6,6 +6,12 @@ set(LIB_DIR "/usr/local/Cellar/freetds/0.95.80")
 include_directories (${LIB_DIR}/include)
 link_directories (${LIB_DIR}/lib)
 
+set(DB_SOURCE_FILES
+        snet/tds/TdsWrapper.h
+        snet/tds/TdsWrapper.cpp
+        snet/tds/OdbcWrapper.cpp
+        snet/tds/OdbcWrapper.h)
+
 set(SOURCE_FILES
     snet/http/http_parser.c
     snet/http/http_parser.h
@@ -44,10 +50,9 @@ set(SOURCE_FILES
     snet/Util.h
     snet/IOSelect.cpp
     snet/IOSelect.h
-    snet/tds/TdsWrapper.h
-    snet/tds/TdsWrapper.cpp)
+    )
 
-add_executable(snet ${SOURCE_FILES})
+add_executable(snet ${SOURCE_FILES} ${DB_SOURCE_FILES})
 if (WIN32)
     target_link_libraries(snet "ws2_32.lib")
 else()
