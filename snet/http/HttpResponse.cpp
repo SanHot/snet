@@ -72,7 +72,7 @@ std::string HttpResponse::packet(){
     }
     ret+=("\r\n");
     ret+=(m_body);
-    
+
     //LOG_STDOUT("Response: %s", ret.c_str());
     return ret;
 }

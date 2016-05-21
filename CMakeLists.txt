@@ -16,8 +16,8 @@ endif()
 set(DB_SOURCE_FILES
         snet/tds/TdsWrapper.h
         snet/tds/TdsWrapper.cpp
-        snet/tds/OdbcWrapper.cpp
-        snet/tds/OdbcWrapper.h
+#        snet/tds/OdbcWrapper.cpp
+#        snet/tds/OdbcWrapper.h
         snet/tds/nanodbc.cpp
         snet/tds/nanodbc.h
         snet/tds/unicode_utils.h)
@@ -64,7 +64,7 @@ set(SOURCE_FILES
 
 add_executable(snet ${SOURCE_FILES} ${DB_SOURCE_FILES})
 if (WIN32)
-    target_link_libraries(snet "ws2_32.lib")
+    target_link_libraries(snet odbc32.lib odbccp32.lib Ws2_32.lib)
 else()
     target_link_libraries(snet libsybdb.a)
     target_link_libraries(snet libodbc.dylib)

@@ -17,9 +17,15 @@
 int db_odbc_exec(const char *sql, char *content) {
     std::string ret = "";
     try {
+#ifdef WIN32
+        nanodbc::connection conn(NANODBC_TEXT("Driver={SQL SERVER};"
+                                             "Server=122.224.77.122,1433;"
+                                             "Database=original;UID=jc#15User;PWD=No19@Data;"));
+#else
         nanodbc::connection conn(NANODBC_TEXT("Driver={/usr/local/Cellar/freetds/0.95.80/lib/libtdsodbc.so};"
                                              "Server=122.224.77.122,1433;"
                                              "Database=original;UID=jc#15User;PWD=No19@Data;"));
+#endif
         long batch_size = 1;
         nanodbc::result row = execute(conn, NANODBC_TEXT(sql), batch_size);
         for (int i = 1; row.next(); ++i) {
@@ -35,7 +41,8 @@ int db_odbc_exec(const char *sql, char *content) {
         memcpy(content, ret.c_str(), ret.length());
     }
     catch (std::runtime_error const& e) {
-//        cerr << e.what() << endl;
+        ret.assign(e.what());
+        memcpy(content, ret.c_str(), ret.length());
         return -1;
     }
     return 0;
@@ -59,6 +66,10 @@ void callback(uint8_t method, const std::string &url, HttpResponse *res) {
     else if (url == "/user") {
         char content[102400] = {0};
         int ret = db_odbc_exec("select * from tb_User", content);
+        if(ret == -1) {
+            res->setHttp404Status();
+            return;
+        }
         res->setStatusCode(HttpResponse::HTTP_OK);
         res->setContentType(CONTEXT_TYPE_PLAIN);
         res->addHeader("Server", "Jointcom/snet1.0");
@@ -68,8 +79,11 @@ void callback(uint8_t method, const std::string &url, HttpResponse *res) {
         char content[102400] = {0};
         int ret = db_odbc_exec("select  KHDM, CPXH, KHXH, AddTime from tdb_bz_khtmdy "
                             "where KHDM <> ' ' and CPXH in "
-                            "(select CPXH from tdb_cp_tsxx where XHBM = 'jcft252604n002-a1')",
-                    content);
+                            "(select CPXH from tdb_cp_tsxx where XHBM = 'jcft252604n002-a1')", content);
+        if(ret == -1) {
+            res->setHttp404Status();
+            return;
+        }
         res->setStatusCode(HttpResponse::HTTP_OK);
         res->setContentType(CONTEXT_TYPE_PLAIN);
         res->addHeader("Server", "Jointcom/snet1.0");
@@ -89,7 +103,7 @@ int main(int argc, const char * argv[]) {
     
     //a_svr->start("10.204.118.101", 8080, 3);
     //a_svr->start("192.168.3.8", 8080, 3);
-    a_svr->start("127.0.0.1", 8080, 3);
+    a_svr->start("10.211.55.10", 8080, 1);
     
     a_loop->start_loop();
     return 0;
