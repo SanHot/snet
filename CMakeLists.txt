@@ -2,15 +2,25 @@ cmake_minimum_required(VERSION 3.4)
 project(snet)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(LIB_DIR "/usr/local/Cellar/freetds/0.95.80")
-include_directories (${LIB_DIR}/include)
-link_directories (${LIB_DIR}/lib)
+
+if (APPLE)
+set(FREETDS_LIB_DIR "/usr/local/Cellar/freetds/0.95.80")
+include_directories (${FREETDS_LIB_DIR}/include)
+link_directories (${FREETDS_LIB_DIR}/lib)
+
+set(ODBC_LIB_DIR "/usr/local/Cellar/unixodbc/2.3.2_1")
+include_directories(${ODBC_LIB_DIR}/include)
+link_directories(${ODBC_LIB_DIR}/lib)
+endif()
 
 set(DB_SOURCE_FILES
         snet/tds/TdsWrapper.h
         snet/tds/TdsWrapper.cpp
         snet/tds/OdbcWrapper.cpp
-        snet/tds/OdbcWrapper.h)
+        snet/tds/OdbcWrapper.h
+        snet/tds/nanodbc.cpp
+        snet/tds/nanodbc.h
+        snet/tds/unicode_utils.h)
 
 set(SOURCE_FILES
     snet/http/http_parser.c
@@ -57,6 +67,7 @@ if (WIN32)
     target_link_libraries(snet "ws2_32.lib")
 else()
     target_link_libraries(snet libsybdb.a)
+    target_link_libraries(snet libodbc.dylib)
 endif ()
 
 

@@ -5,6 +5,7 @@
 #ifndef TDSPP_TDSPP_H
 #define TDSPP_TDSPP_H
 
+#ifdef __APPLE__
 #include <string>
 #include <exception>
 #include <sqlfront.h>
@@ -90,6 +91,6 @@ private:
     DBPROCESS* m_dbproc;
     std::string m_error;
 };
-
+#endif
 
 #endif //TDSPP_TDSPP_H

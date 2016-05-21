@@ -2,6 +2,7 @@
 // Created by San on 16/3/28.
 //
 
+#ifdef __APPLE__
 #include "TdsWrapper.h"
 #include <assert.h>
 
@@ -316,6 +317,8 @@ int TdsWrapper::setMaxBuffer(int max) {
     }
     return 0;
 }
+
+#endif
 
 
 

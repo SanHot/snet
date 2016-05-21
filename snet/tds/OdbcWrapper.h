@@ -34,7 +34,7 @@ class OdbcWrapper;
 class OdbcQuery {
 public:
     OdbcQuery(OdbcWrapper* pTds);
-    virtual ~TdsQuery();
+    virtual ~OdbcQuery();
 
     int numFields();
 

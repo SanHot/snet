@@ -10,7 +10,7 @@ OdbcQuery::OdbcQuery(OdbcWrapper *pTds) {
 
 }
 
-OdbcQuery::~TdsQuery() {
+OdbcQuery::~OdbcQuery() {
 
 }
 
@@ -58,7 +58,7 @@ void OdbcQuery::execQuery(const char *sql) {
                         pCol[i].name, 128, (SQLSMALLINT *) &pCol[i].name_size, NULL);
 
         SQLColAttribute(pOdbc->sqlstatementhandle, (SQLUSMALLINT) i + 1, SQL_COLUMN_TYPE,
-                        NULL, 0, NULL, (SQLSMALLINT *) &pCol[i].dataType);
+                        NULL, 0, NULL, (SQLLEN *) &pCol[i].dataType);
 
         pCol[i].buffer = new char[MAX_BUFFER_SIZE];
         SQLBindCol(pOdbc->sqlstatementhandle, (SQLUSMALLINT) i + 1, SQL_C_CHAR, pCol[i].buffer, MAX_BUFFER_SIZE,
