@@ -61,7 +61,7 @@ std::string HttpResponse::packet(){
     else
         ret+=("Connection: Keep-Alive\r\n");
     
-    snprintf(buf, sizeof buf, "Content-Length: %zd\r\n", m_body.size());
+    snprintf(buf, sizeof buf, "Content-Length: %d\r\n", m_body.size());
     ret+=(buf);
     
     for (auto it = m_headers.begin(); it != m_headers.end(); ++it) {
