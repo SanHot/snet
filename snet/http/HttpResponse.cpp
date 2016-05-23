@@ -19,11 +19,14 @@ void HttpResponse::setStatusCode(Http_Code code){
     }
 }
 
-void HttpResponse::setHttp404Status() {
+void HttpResponse::setHttp404Status(const char* error_msg) {
     setStatusCode(HTTP_NOTFAND);
     setContentType(CONTEXT_TYPE_HTML);
     addHeader("Server", JOINTCOM_FLAG);
-    setBody("<HTML><TITLE>Not Found</TITLE>\r\n"
+    if (error_msg)
+        setBody(error_msg);
+    else
+        setBody("<HTML><TITLE>Not Found</TITLE>\r\n"
             "<BODY><P>(CODE: 404)</P>\r\n"
             "the resource is unavailable or nonexistent.\r\n"
             "</BODY></HTML>\r\n");
@@ -61,7 +64,7 @@ std::string HttpResponse::packet(){
     else
         ret+=("Connection: Keep-Alive\r\n");
     
-    snprintf(buf, sizeof buf, "Content-Length: %d\r\n", m_body.size());
+    snprintf(buf, sizeof buf, "Content-Length: %d\r\n", (int)m_body.size());
     ret+=(buf);
     
     for (auto it = m_headers.begin(); it != m_headers.end(); ++it) {

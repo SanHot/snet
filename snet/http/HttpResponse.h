@@ -32,7 +32,7 @@ public:
     void setBody(const std::string& body){m_body = body;}
     
     void setStatusCode(Http_Code code);
-    void setHttp404Status();
+    void setHttp404Status(const char* error_msg = nullptr);
     void setHttp400Status();
     void setHttp501Status();
     

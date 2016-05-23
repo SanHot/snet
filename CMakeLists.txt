@@ -16,8 +16,6 @@ endif()
 set(DB_SOURCE_FILES
         snet/tds/TdsWrapper.h
         snet/tds/TdsWrapper.cpp
-#        snet/tds/OdbcWrapper.cpp
-#        snet/tds/OdbcWrapper.h
         snet/tds/nanodbc.cpp
         snet/tds/nanodbc.h
         snet/tds/unicode_utils.h)
