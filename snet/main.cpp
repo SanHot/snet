@@ -97,8 +97,9 @@ void callback(uint8_t method, const std::string &url, HttpResponse *res) {
         Buffer content;
         ServerInfo si("192.168.0.220,1433", "JointComV2", "sa", "jointwis");
         int ret = db_odbc_exec(si, "select KHDM, CPXH, KHXH, AddTime from tdb_bz_khtmdy "
-                            "where KHDM <> ' ' and CPXH in "
-                            "(select CPXH from tdb_cp_tsxx where XHBM = 'jcft252604n002-a1')", &content);
+//                            "where KHDM <> ' ' and CPXH in "
+//                            "(select CPXH from tdb_cp_tsxx where XHBM = 'jcft252604n002-a1')"
+                               , &content);
         if(ret == -1) {
             res->setHttp404Status(content.buffer());
             return;

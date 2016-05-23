@@ -129,12 +129,13 @@ void TcpStream::handle_write_event(void* arg) {
         if (err) {
             LOG_STDOUT("CONNECTING_EVENT(%d): error(%d)", m_fd, err);
             handle_error_event((void*)&err);
-            return;
         } else {
             m_status = STATE_CONNECTED;
             if (m_connect_callback != NULL)
                 m_connect_callback(shared_from_this());
         }
+        //    完成一次write事件
+        m_ev->setWriting(false);
     } else {
         if (m_status == STATE_CLOSING)
             return;
@@ -175,8 +176,6 @@ void TcpStream::handle_write_event(void* arg) {
             }
         }
     }
-//    完成一次write事件
-    m_ev->setWriting(false);
 }
 
 void TcpStream::post_close_event(void* arg) {
