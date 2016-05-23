@@ -30,6 +30,7 @@ public:
     void setContentType(const std::string& contentType){addHeader("Content-Type", contentType);}
     void addHeader(const std::string& key, const std::string& value){m_headers.insert(std::make_pair(key, value));}
     void setBody(const std::string& body){m_body = body;}
+    void setBody(const char* body, size_t len) {m_body.assign(body, len);}
     
     void setStatusCode(Http_Code code);
     void setHttp404Status(const char* error_msg = nullptr);

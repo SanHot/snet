@@ -43,7 +43,7 @@ public:
         }
     }
     uint32_t write(void* buf, uint32_t len) {
-        if (m_write_offset + len > m_alloc_size)
+        if (m_write_offset + len >= m_alloc_size)
             extend(len);
         if (buf)
             memcpy(m_buffer + m_write_offset, buf, len);

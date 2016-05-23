@@ -10,6 +10,7 @@
 #include "http/HttpServer.h"
 #include "tds/TdsWrapper.h"
 #include "tds/unicode_utils.h"
+#include "Buffer.h"
 
 #ifdef WIN32
     #define DB_DRIVER "SQL SERVER"
@@ -31,7 +32,7 @@ struct ServerInfo {
     std::string pwd;
 };
 
-int db_odbc_exec(const ServerInfo& si, const char *sql, char *content, size_t len) {
+int db_odbc_exec(const ServerInfo& si, const char *sql, Buffer *content) {
     std::string ret = "";
     try {
         char dsn[512] = {0};
@@ -49,13 +50,13 @@ int db_odbc_exec(const ServerInfo& si, const char *sql, char *content, size_t le
             }
             ret += ("\n");
         }
-        if(ret.length() < len)
-            len = ret.length();
-        memcpy(content, ret.c_str(), len);
+        content->write((void*)ret.c_str(), ret.length());
+        content->buffer()[content->offset()] = '\0';
     }
     catch (std::runtime_error const& e) {
         ret.assign(e.what());
-        memcpy(content, ret.c_str(), ret.length());
+        content->write((void*)ret.c_str(), ret.length());
+        content->buffer()[content->offset()] = '\0';
         return -1;
     }
     return 0;
@@ -66,7 +67,7 @@ void callback(uint8_t method, const std::string &url, HttpResponse *res) {
         res->setStatusCode(HttpResponse::HTTP_OK);
         res->setContentType(CONTEXT_TYPE_HTML);
         res->addHeader("Server", JOINTCOM_FLAG);
-        res->setBody("<html><head><title>This is title</title></head>"
+        res->setBody("<html><head><title>JOINTCOM</title></head>"
                              "<body><h1>Hello</h1>Now is 8:54"
                              "</body></html>");
     }
@@ -77,37 +78,35 @@ void callback(uint8_t method, const std::string &url, HttpResponse *res) {
         res->setBody("hello, world!\n");
     }
     else if (url == "/user") {
-        char *content = (char*)malloc(MAX_CONTENT_LEN * sizeof(char));
         //"10.204.118.102,1433";
         //"122.224.77.122,1433";
         //"jc#15User", "No19@Data", "original", "utf8"
+        Buffer content;
         ServerInfo si("192.168.0.3,1433", "original", "jc#15User", "No19@Data");
-        int ret = db_odbc_exec(si, "select * from tb_User", content, MAX_CONTENT_LEN);
+        int ret = db_odbc_exec(si, "select * from tb_User", &content);
         if(ret == -1) {
-            res->setHttp404Status(content);
+            res->setHttp404Status(content.buffer());
             return;
         }
         res->setStatusCode(HttpResponse::HTTP_OK);
         res->setContentType(CONTEXT_TYPE_PLAIN);
         res->addHeader("Server", "Jointcom/snet1.0");
-        res->setBody(content);
-        free(content);
+        res->setBody(content.buffer());
     }
     else if (url == "/query") {
-        char *content = (char*)malloc(MAX_CONTENT_LEN * sizeof(char));
+        Buffer content;
         ServerInfo si("192.168.0.220,1433", "JointComV2", "sa", "jointwis");
         int ret = db_odbc_exec(si, "select KHDM, CPXH, KHXH, AddTime from tdb_bz_khtmdy "
                             "where KHDM <> ' ' and CPXH in "
-                            "(select CPXH from tdb_cp_tsxx where XHBM = 'jcft252604n002-a1')", content, MAX_CONTENT_LEN);
+                            "(select CPXH from tdb_cp_tsxx where XHBM = 'jcft252604n002-a1')", &content);
         if(ret == -1) {
-            res->setHttp404Status(content);
+            res->setHttp404Status(content.buffer());
             return;
         }
         res->setStatusCode(HttpResponse::HTTP_OK);
         res->setContentType(CONTEXT_TYPE_PLAIN);
         res->addHeader("Server", "Jointcom/snet1.0");
-        res->setBody(content);
-        free(content);
+        res->setBody(content.buffer());
     }
     else {
         res->setHttp404Status();
