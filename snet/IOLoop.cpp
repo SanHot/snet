@@ -52,8 +52,12 @@ TimeItem_t* IOLoop::add_timer(uint64_t timeout, const Function_t& callback) {
     return pTime;
 }
 int IOLoop::remove_timer(const TimeItem_t* timer) {
-    auto it = std::find(m_timeEventList.begin(), m_timeEventList.end(), timer);
-    m_timeEventList.erase(it);
+    if(timer != nullptr) {
+        auto it = std::find(m_timeEventList.begin(), m_timeEventList.end(), timer);
+        if(it != m_timeEventList.end()) {
+            m_timeEventList.erase(it);
+        }
+    }
     return 0;
 }
 

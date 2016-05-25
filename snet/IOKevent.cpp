@@ -41,11 +41,11 @@ int IOKevent::processEvent(EventList* activeList) {
         io->poll_events = EVENT_NONE;
         
         if (kevents[i].filter == EVFILT_READ) {
-            //LOG_STDOUT("EVFILT_READ: socket=(%d)", (int)ev_fd);
+//            LOG_STDOUT("EVFILT_READ: socket=(%d)", (int)ev_fd);
             io->poll_events |= EVENT_READ;
         }
         if (kevents[i].filter == EVFILT_WRITE) {
-            //LOG_STDOUT("EVFILT_WRITE: socket=(%d)", (int)ev_fd);
+//            LOG_STDOUT("EVFILT_WRITE: socket=(%d)", (int)ev_fd);
             io->poll_events |= EVENT_WRITE;
         }
         activeList->push_back(io);

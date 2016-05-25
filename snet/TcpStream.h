@@ -22,7 +22,8 @@ enum
     STATE_LISTENING,
     STATE_CONNECTING,
     STATE_CONNECTED,
-    STATE_CLOSING
+    STATE_CLOSING,
+    STATE_CLOSED
 };
 
 StreamPtr_t FindConnectedStream(int fd);

@@ -11,6 +11,8 @@
 #include "../Log.h"
 #include "HttpServer.h"
 
+#define SERVER_TIMEOUT 30000
+
 MUTEX_T HttpServer::s_mtx;
 SendList_t HttpServer::s_sendList;
 
@@ -42,7 +44,7 @@ void HttpTask::callback(uint8_t method, const std::string& url, HttpResponse* re
     }
 }
 
-HttpServer::HttpServer(IOLoop* loop):m_loop(loop) {
+HttpServer::HttpServer(IOLoop* loop):m_loop(loop),m_read_time(0),m_timeout(SERVER_TIMEOUT) {
     BaseSocket::START_UP();
 }
 
@@ -55,6 +57,7 @@ int HttpServer::start(const char* ip, int port, int task_count) {
     m_svr = std::make_shared<TcpStream>(m_loop);
     if(g_httpThreadPool.init(task_count) == -1)
         return -1;
+    LOG_STDOUT("ThreadPool: Init(%d)", task_count);
     m_svr->async_listening(ip, port, std::bind(&HttpServer::onConn, this, std::placeholders::_1));
     m_svr->async_read(std::bind(&HttpServer::onRead, this, std::placeholders::_1, std::placeholders::_2));
     m_loop->add_handle(std::bind(&HttpServer::runInLoop, this, std::placeholders::_1));
@@ -131,8 +134,8 @@ void HttpServer::onWriten(const StreamPtr_t& stream) {
 }
 
 void HttpServer::onTimeout(const StreamPtr_t &stream, uint64_t current_tick) {
-    if ((current_tick - m_read_time) >= 30000) {
-//        LOG_STDOUT("OnTimeOut(%d): %d", stream->fd(), current_tick);
+    if ((current_tick - m_read_time) >= m_timeout) {
+        LOG_STDOUT("OnTimeOut(%d): %lld", stream->fd(), current_tick);
         stream->async_close();
     }
     else {

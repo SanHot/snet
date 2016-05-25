@@ -31,6 +31,16 @@ uint64_t get_tick() {
     return tval.tv_sec * 1000L + tval.tv_usec / 1000L;
 }
 
+int get_now(char* date_time) {
+    time_t now = time(NULL);
+    char date[128] = { 0 };
+    struct tm *p = localtime(&now);
+    sprintf(date, "%d-%02d-%02d %02d:%02d:%02d", 1900 + p->tm_year, 1 + p->tm_mon, p->tm_mday,
+              p->tm_hour, p->tm_min, p->tm_sec);
+    memcpy(date_time, date, strlen(date));
+    return 0;
+}
+
 int isFileExist(const char* path) {
     //00: exist, 02: read,  04: write, 06: read and write
     return access(path, 0);

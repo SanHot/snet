@@ -204,9 +204,11 @@ void TcpStream::handle_close_event(void* arg) {
     StreamPtr_t svr = FindConnectedStream(svr_fd);
     if (svr != NULL && svr->m_close_callback != NULL)
         svr->m_close_callback(addr);
+    m_status = STATE_CLOSED;
 }
 
 void TcpStream::handle_error_event(void* arg) {
+    async_close();
     if (m_error_callback != NULL)
         m_error_callback(m_peer_addr, arg);
 }

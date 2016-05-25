@@ -10,6 +10,7 @@
 #define Buffer_h
 
 #include "stdafx.h"
+#include "Log.h"
 
 class Buffer
 {
@@ -40,6 +41,9 @@ public:
         if(new_buf != NULL) {
             m_buffer = new_buf;
 //            printf("alloc buffer\n");
+        }
+        else {
+            LOG_STDERR("Buffer: realloc error");
         }
     }
     uint32_t write(void* buf, uint32_t len) {

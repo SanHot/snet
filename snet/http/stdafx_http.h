@@ -9,7 +9,7 @@
 #ifndef stdafx_http_h
 #define stdafx_http_h
 
-#define JOINTCOM_FLAG "Jointcom/snet"
+#define JOINTCOM_FLAG "Jointcom/snet1.0"
 #define CONTEXT_TYPE_DATE "multipart/form-data"
 #define CONTEXT_TYPE_HTML "text/html;charset=utf-8"
 #define CONTEXT_TYPE_PLAIN "text/plain;charset=utf-8"

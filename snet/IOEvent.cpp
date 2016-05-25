@@ -57,7 +57,7 @@ void IOEvent::handleEvent(void* arg) {
             m_write_callback(NULL);
     }
     if(poll_events == EVENT_ERROR) {
-//        LOG_STDOUT("HandleEvent: error");
+        LOG_STDOUT("HandleEvent: error");
         if(m_error_callback)
             m_error_callback(NULL);
     }

@@ -17,6 +17,7 @@ void operator=(const TypeName&)
 
 int setSleep(int millisecond);
 uint64_t get_tick();
+int get_now(char* date_time);
 int isFileExist(const char* path);
 char *GetIniKeyString(char *title,char *key,char *filename);
 

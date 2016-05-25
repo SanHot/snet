@@ -59,6 +59,7 @@ private:
     IOLoop* m_loop;
     StreamPtr_t m_svr;
     uint64_t m_read_time;
+    uint64_t m_timeout;
     HttpCallback_t m_httpCallback;
     
     ThreadPool g_httpThreadPool;

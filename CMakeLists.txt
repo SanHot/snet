@@ -30,6 +30,7 @@ set(SOURCE_FILES
     snet/http/HttpResponse.h
     snet/http/HttpServer.cpp
     snet/http/HttpServer.h
+    snet/http/json.hpp
     snet/http/stdafx_http.h
     snet/http/TreadPool.cpp
     snet/http/TreadPool.h
