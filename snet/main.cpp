@@ -11,7 +11,6 @@
 #include "IOLoop.h"
 #include "http/HttpServer.h"
 #include "http/json.hpp"
-#include "tds/TdsWrapper.h"
 #include "tds/unicode_utils.h"
 #include "Buffer.h"
 
@@ -64,8 +63,8 @@ int readConfig(const char* path, nlohmann::json& config) {
     try {
         config = nlohmann::json::parse(b);
     }
-    catch(std::invalid_argument const& e) {
-        LOG_STDOUT("%s Incomplete!", path);
+    catch(std::exception const& e) {
+        LOG_STDOUT("readConfig(%s): %s", path, e.what());
         return -1;
     }
     return 0;
@@ -92,7 +91,7 @@ int readUrlConfig(const std::string& url, ServerInfo& si, int& flag, std::string
         flag = j_exec["exec"] == "query"? FLAG_QUERY:FLAG_EXEC;
         sql = j_exec["sql"];
     }
-    catch(std::domain_error const& e) {
+    catch(std::exception const& e) {
         LOG_STDOUT("readUrlConfig(%s): %s", url.c_str(), e.what());
         return -1;
     }
@@ -110,7 +109,7 @@ int db_odbc_exec(const ServerInfo &si, int flag, const char *sql, Buffer *conten
         nanodbc::connection conn(NANODBC_TEXT(dsn));
         long batch_size = 1;
         LOG_STDOUT("DB_EXEC(%s): Start exec", si.database.c_str());
-        nanodbc::result row = execute(conn, NANODBC_TEXT(sql), batch_size);
+        nanodbc::result row = execute(conn, NANODBC_TEXT(sql), batch_size, 20*1000);
         if (flag == FLAG_QUERY) {
             for (int i = 1; row.next(); ++i) {
                 for (int j = 0; j < row.columns(); ++j) {
@@ -125,7 +124,7 @@ int db_odbc_exec(const ServerInfo &si, int flag, const char *sql, Buffer *conten
                         content->write((void *) &lf, 1);
                 }
             }
-            LOG_STDOUT("DB_EXEC(%s): Recv %d", si.database.c_str(), (int) content->offset());
+            LOG_STDOUT("DB_EXEC(%s): Fetch %d", si.database.c_str(), (int) content->offset());
             content->buffer()[content->offset()] = '\0';
         }
     }
