@@ -47,7 +47,7 @@ wchar_t* MBs2WCs(const char* pszSrc) {
 #ifdef _WIN32
     size = MultiByteToWideChar(20936, 0, pszSrc, -1, 0, 0);
     if(size <= 0)
-        returnNULL;
+        return NULL;
     pwcs = new wchar_t[size];
     MultiByteToWideChar(20936, 0, pszSrc, -1, pwcs, size);
 #else
