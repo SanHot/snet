@@ -21,13 +21,20 @@ HttpTask::HttpTask(int fd, uint8_t method, std::string url):m_fd(fd),m_method(me
 
 void HttpTask::run() {
     HttpResponse res;
+    uint64_t cb_time = get_tick();
     if(m_callback)
         m_callback(m_method, m_url, &res);
     else
         res.setHttp404Status();
 //    callback(m_method, m_url, &res);
     res.setAlive(false);
-    HttpServer::addResponseList(m_fd, res);
+    cb_time = get_tick()-cb_time;
+    if(cb_time<SERVER_TIMEOUT) {
+        HttpServer::addResponseList(m_fd, res);
+        LOG_STDOUT("Task(%s): complete(%lld ms)", m_url.c_str(), cb_time);
+    }
+    else
+        LOG_STDOUT("Task(%s): timeout(%lld ms)", m_url.c_str(), cb_time);
 }
 
 void HttpTask::callback(uint8_t method, const std::string& url, HttpResponse* res) {
@@ -44,7 +51,7 @@ void HttpTask::callback(uint8_t method, const std::string& url, HttpResponse* re
     }
 }
 
-HttpServer::HttpServer(IOLoop* loop):m_loop(loop),m_read_time(0),m_timeout(SERVER_TIMEOUT) {
+HttpServer::HttpServer(IOLoop* loop):m_loop(loop),m_read_time(0),m_write_time(0),m_timeout(SERVER_TIMEOUT) {
     BaseSocket::START_UP();
 }
 
@@ -135,7 +142,7 @@ void HttpServer::onWriten(const StreamPtr_t& stream) {
 
 void HttpServer::onTimeout(const StreamPtr_t &stream, uint64_t current_tick) {
     if ((current_tick - m_read_time) >= m_timeout) {
-        LOG_STDOUT("OnTimeOut(%d): %lld", stream->fd(), current_tick);
+        LOG_STDOUT("OnTimeOut(%d): %lld ms", stream->fd(), current_tick - m_read_time);
         stream->async_close();
     }
     else {

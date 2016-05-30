@@ -106,16 +106,18 @@ int db_odbc_exec(const ServerInfo &si, int flag, const char *sql, Buffer *conten
         char lf = '\n';
         sprintf(dsn, "Driver={" DB_DRIVER "};Server=%s;Database=%s;UID=%s;PWD=%s;",
                 si.server.c_str(), si.database.c_str(), si.uid.c_str(), si.pwd.c_str());
-        nanodbc::connection conn(NANODBC_TEXT(dsn));
+        nanodbc::connection conn(NANODBC_TEXT(dsn), 10);
         long batch_size = 1;
         LOG_STDOUT("DB_EXEC(%s): Start exec", si.database.c_str());
-        nanodbc::result row = execute(conn, NANODBC_TEXT(sql), batch_size, 20*1000);
+        nanodbc::result row = execute(conn, NANODBC_TEXT(sql), batch_size, 30);
         if (flag == FLAG_QUERY) {
             for (int i = 1; row.next(); ++i) {
                 for (int j = 0; j < row.columns(); ++j) {
                     std::string col = "";
                     if (!row.is_null(j)) {
                         col = row.get<nanodbc::string_type>(j);
+                        if(row.column_c_datatype(j) != -8)
+                            col = GBKToUTF8(col.c_str());
                         content->write((void *) col.c_str(), col.length());
                     }
                     if (j != row.columns() - 1)
