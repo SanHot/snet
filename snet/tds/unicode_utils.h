@@ -62,6 +62,7 @@ inline std::string any_to_string<nanodbc::string_type>(nanodbc::string_type cons
 }
 
 std::string GBKToUTF8(const char* strGBK) {
+#ifdef _WIN32
     int len = MultiByteToWideChar(CP_ACP, 0, strGBK, -1, NULL, 0);
     wchar_t* wstr = new wchar_t[len+1];
     memset(wstr, 0, len+1);
@@ -74,9 +75,13 @@ std::string GBKToUTF8(const char* strGBK) {
     if(wstr) delete[] wstr;
     if(str) delete[] str;
     return strTemp;
+#else
+    return "";
+#endif
 }
 
 std::string UTF8ToGBK(const char* strUTF8) {
+#ifdef _WIN32
     int len = MultiByteToWideChar(CP_UTF8, 0, strUTF8, -1, NULL, 0);
     wchar_t* wszGBK = new wchar_t[len+1];
     memset(wszGBK, 0, len*2+2);
@@ -89,6 +94,9 @@ std::string UTF8ToGBK(const char* strUTF8) {
     if(wszGBK) delete[] wszGBK;
     if(szGBK) delete[] szGBK;
     return strTemp;
+#else
+    return "";
+#endif
 }
 
 #endif // NANODBC_UNICODE_UTILS_H

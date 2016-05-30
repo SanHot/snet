@@ -2298,19 +2298,29 @@ private:
         bound_columns_size_ = n_columns;
 
         RETCODE rc;
-        NANODBC_SQLCHAR column_name[1024];
+//-------------------modify by san-----------------------
+//        NANODBC_SQLCHAR column_name[1024];
+        SQLWCHAR column_name[1024];
+//-------------------modify by san-----------------------
         SQLSMALLINT sqltype, scale, nullable, len;
         SQLULEN sqlsize;
 
         for(SQLSMALLINT i = 0; i < n_columns; ++i)
         {
             NANODBC_CALL_RC(
-                NANODBC_FUNC(SQLDescribeCol)
+//-------------------modify by san-----------------------
+                NANODBC_FUNC(SQLDescribeColW)
+//-------------------modify by san-----------------------
                 , rc
                 , stmt_.native_statement_handle()
                 , i + 1
-                , (NANODBC_SQLCHAR*)column_name
-                , sizeof(column_name)/sizeof(NANODBC_SQLCHAR)
+//-------------------modify by san-----------------------
+//                , (NANODBC_SQLCHAR*)column_name
+//                , sizeof(column_name)/sizeof(NANODBC_SQLCHAR)
+//-------------------modify by san-----------------------
+                , column_name
+                , sizeof(column_name)/sizeof(SQLWCHAR)
+
                 , &len
                 , &sqltype
                 , &sqlsize
@@ -2337,7 +2347,17 @@ private:
             }
 
             bound_column& col = bound_columns_[i];
-            col.name_ = reinterpret_cast<string_type::value_type*>(column_name);
+//-------------------modify by san-----------------------
+//            col.name_ = reinterpret_cast<string_type::value_type*>(column_name);
+            const SQLWCHAR* s = column_name;
+            const string_type::size_type str_size = len;
+            wide_string_type temp(s, s + str_size);
+#ifdef NANODBC_USE_UNICODE
+            col.name_ = temp;
+#else
+            convert(temp, col.name_);
+#endif
+//-------------------modify by san-----------------------
             col.column_ = i;
             col.sqltype_ = sqltype;
             col.sqlsize_ = sqlsize;
@@ -2384,6 +2404,12 @@ private:
                     {
                         col.clen_ = 0;
                         col.blob_ = true;
+                    }
+                    else
+                    {
+//-------------------modify by san-----------------------
+                        col.ctype_ = SQL_C_WCHAR;
+//-------------------modify by san-----------------------
                     }
                     break;
                 case SQL_WCHAR:

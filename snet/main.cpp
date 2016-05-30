@@ -111,16 +111,23 @@ int db_odbc_exec(const ServerInfo &si, int flag, const char *sql, Buffer *conten
         LOG_STDOUT("DB_EXEC(%s): Start exec", si.database.c_str());
         nanodbc::result row = execute(conn, NANODBC_TEXT(sql), batch_size, 30);
         if (flag == FLAG_QUERY) {
+            for (int n = 0; n < row.columns(); ++n) {
+                std::string col_name = row.column_name(n);
+                content->write((void *) col_name.c_str(), col_name.length());
+                if (n != row.columns() - 1)
+                    content->write((void *) &ct, 1);
+                else
+                    content->write((void *) &lf, 1);
+            }
+
             for (int i = 1; row.next(); ++i) {
-                for (int j = 0; j < row.columns(); ++j) {
+                for (int n = 0; n < row.columns(); ++n) {
                     std::string col = "";
-                    if (!row.is_null(j)) {
-                        col = row.get<nanodbc::string_type>(j);
-                        if(row.column_c_datatype(j) != -8)
-                            col = GBKToUTF8(col.c_str());
+                    if (!row.is_null(n)) {
+                        col = row.get<nanodbc::string_type>(n);
                         content->write((void *) col.c_str(), col.length());
                     }
-                    if (j != row.columns() - 1)
+                    if (n != row.columns() - 1)
                         content->write((void *) &ct, 1);
                     else
                         content->write((void *) &lf, 1);

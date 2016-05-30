@@ -41,6 +41,24 @@ int get_now(char* date_time) {
     return 0;
 }
 
+wchar_t* MBs2WCs(const char* pszSrc) {
+    wchar_t* pwcs = NULL;
+    size_t size = 0;
+#ifdef _WIN32
+    size = MultiByteToWideChar(20936, 0, pszSrc, -1, 0, 0);
+    if(size <= 0)
+        returnNULL;
+    pwcs = new wchar_t[size];
+    MultiByteToWideChar(20936, 0, pszSrc, -1, pwcs, size);
+#else
+    size = mbstowcs(NULL,pszSrc,0);
+    pwcs = new wchar_t[size+1];
+    size = mbstowcs(pwcs, pszSrc, size+1);
+    pwcs[size] = 0;
+#endif
+    return pwcs;
+}
+
 int isFileExist(const char* path) {
     //00: exist, 02: read,  04: write, 06: read and write
     return access(path, 0);
