@@ -8,7 +8,6 @@
 
 #include "../IOLoop.h"
 #include "../TcpStream.h"
-#include "../Log.h"
 #include "HttpServer.h"
 
 #define SERVER_TIMEOUT 30000
@@ -16,17 +15,20 @@
 MUTEX_T HttpServer::s_mtx;
 SendList_t HttpServer::s_sendList;
 
-HttpTask::HttpTask(int fd, uint8_t method, std::string url):m_fd(fd),m_method(method),m_url(url)
-{}
+//HttpTask::HttpTask(int fd, uint8_t method, std::string url):m_fd(fd),m_method(method),m_url(url)
+//{}
+HttpTask::HttpTask(int fd, const HttpRequest& req):m_fd(fd)
+{
+    m_req = req;
+}
 
 void HttpTask::run() {
     HttpResponse res;
     uint64_t cb_time = get_tick();
     if(m_callback)
-        m_callback(m_method, m_url, &res);
+        m_callback(&m_req, &res);
     else
         res.setHttp404Status();
-//    callback(m_method, m_url, &res);
     res.setAlive(false);
     cb_time = get_tick()-cb_time;
     if(cb_time<SERVER_TIMEOUT) {
@@ -50,6 +52,7 @@ void HttpTask::callback(uint8_t method, const std::string& url, HttpResponse* re
         res->setHttp404Status();
     }
 }
+
 
 HttpServer::HttpServer(IOLoop* loop):m_loop(loop),m_read_time(0),m_write_time(0),m_timeout(SERVER_TIMEOUT) {
     BaseSocket::START_UP();
@@ -95,7 +98,7 @@ void HttpServer::sendResponseList() {
     for (auto& obj : sendlist) {
         StreamPtr_t stream = FindConnectedStream(obj.first);
         if (stream != nullptr) {
-            std::string data = obj.second.packet();
+            std::string data = obj.second.dump();
             stream->async_write(data.c_str(), (int)data.length());
         }
     }
@@ -122,12 +125,16 @@ void HttpServer::onRead(const StreamPtr_t& stream, Buffer* buf) {
     if (obj->ready()) {
         LOG_STDOUT("Url: %s", obj->url().c_str());
         buf->read(NULL, obj->length());
-        
+
+        HttpRequest req;
+        req.setMethod(obj->httpMethod());
+        req.setUrl(obj->url().c_str());
+        req.setBody(obj->body().c_str());
 //        HttpResponse res;
 //        res.setHttp404Status();
 //        HttpServer::addResponseList(stream->fd(), res);
 
-        HttpTask* tsk = new HttpTask(stream->fd(),obj->method(), obj->url());
+        HttpTask* tsk = new HttpTask(stream->fd(), req);
         tsk->setHttpCallback(m_httpCallback);
 //      线程池中每个执行完毕的tsk会delete
         if(tsk)

@@ -1428,14 +1428,26 @@ public:
 
         this->timeout(timeout);
 
+//-------------------modify by san-----------------------
+        std::u16string temp = std::wstring_convert<NANODBC_CODECVT_TYPE<wide_char_t>, wide_char_t>().from_bytes(query);
         NANODBC_CALL_RC(
-            NANODBC_FUNC(SQLExecDirect)
-            , rc
-            , stmt_
-            , (NANODBC_SQLCHAR*)query.c_str()
-            , SQL_NTS);
+                NANODBC_FUNC(SQLExecDirectW)
+                , rc
+                , stmt_
+                , (SQLWCHAR*)temp.c_str()
+                , SQL_NTS);
         if(!success(rc) && rc != SQL_NO_DATA && rc != SQL_STILL_EXECUTING)
             NANODBC_THROW_DATABASE_ERROR(stmt_, SQL_HANDLE_STMT);
+//-------------------modify by san-----------------------
+
+//        NANODBC_CALL_RC(
+//            NANODBC_FUNC(SQLExecDirect)
+//            , rc
+//            , stmt_
+//            , (NANODBC_SQLCHAR*)query.c_str()
+//            , SQL_NTS);
+//        if(!success(rc) && rc != SQL_NO_DATA && rc != SQL_STILL_EXECUTING)
+//            NANODBC_THROW_DATABASE_ERROR(stmt_, SQL_HANDLE_STMT);
 
         return rc;
     }
@@ -2397,7 +2409,7 @@ private:
                     col.clen_ = sizeof(timestamp);
                     break;
                 case SQL_CHAR:
-                case SQL_VARCHAR:
+// -------------------modify by san-----------------------
                     col.ctype_ = SQL_C_CHAR;
                     col.clen_ = (col.sqlsize_ + 1) * sizeof(SQLCHAR);
                     if(is_blob)
@@ -2405,11 +2417,18 @@ private:
                         col.clen_ = 0;
                         col.blob_ = true;
                     }
-                    else
+                    break;
+// -------------------modify by san-----------------------
+                case SQL_VARCHAR:
+//                    col.ctype_ = SQL_C_CHAR;
+// -------------------modify by san-----------------------
+                    col.ctype_ = SQL_C_WCHAR;
+//-------------------modify by san-----------------------
+                    col.clen_ = (col.sqlsize_ + 1) * sizeof(SQLCHAR);
+                    if(is_blob)
                     {
-//-------------------modify by san-----------------------
-                        col.ctype_ = SQL_C_WCHAR;
-//-------------------modify by san-----------------------
+                        col.clen_ = 0;
+                        col.blob_ = true;
                     }
                     break;
                 case SQL_WCHAR:

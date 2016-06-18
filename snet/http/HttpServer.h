@@ -11,19 +11,22 @@
 
 #include "../MutexGuard.h"
 #include "../Callback.h"
-#include "HttpResponse.h"
 #include "HttpParserObj.h"
+#include "HttpRequest.h"
+#include "HttpResponse.h"
 #include "TreadPool.h"
 
 class TcpStream;
 class IOLoop;
 class HttpTask;
-typedef std::function<void(uint8_t method, const std::string&, HttpResponse*)> HttpCallback_t;
-typedef std::map<int, HttpResponse>  SendList_t;
+//typedef std::function<void(uint8_t method, const std::string&, HttpResponse*)> HttpCallback_t;
+typedef std::function<void(const HttpRequest*, HttpResponse*)> HttpCallback_t;
+typedef std::map<int, HttpResponse> SendList_t;
 class HttpTask: public Task
 {
 public:
-    HttpTask(int fd, uint8_t method, std::string url);
+//    HttpTask(int fd, uint8_t method, std::string url);
+    HttpTask(int fd, const HttpRequest& req);
     virtual ~HttpTask() {}
     void run();
     virtual void callback(uint8_t method, const std::string& url, HttpResponse* res);
@@ -33,6 +36,7 @@ private:
     int m_fd;
     int m_method;
     std::string m_url;
+    HttpRequest m_req;
     HttpCallback_t m_callback;
 };
 

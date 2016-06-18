@@ -68,6 +68,7 @@ public:
         m_write_offset = 0;
     }
 private:
+    DISALLOW_EVIL_CONSTRUCTORS(Buffer);
     char* m_buffer;
     uint32_t m_alloc_size;
     uint32_t m_write_offset;

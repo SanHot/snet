@@ -21,5 +21,6 @@ int get_now(char* date_time);
 wchar_t* MBs2WCs(const char* pszSrc);
 int isFileExist(const char* path);
 char *GetIniKeyString(char *title,char *key,char *filename);
+std::vector<std::string> strSplit(const std::string& src, const std::string& delim, size_t maxParts = size_t(-1));
 
 #endif /* defined(__snet__Util__) */

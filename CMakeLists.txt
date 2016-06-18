@@ -8,7 +8,7 @@ set(FREETDS_LIB_DIR "/usr/local/Cellar/freetds/0.95.80")
 include_directories (${FREETDS_LIB_DIR}/include)
 link_directories (${FREETDS_LIB_DIR}/lib)
 
-set(ODBC_LIB_DIR "/usr/local/Cellar/unixodbc/2.3.2_1")
+set(ODBC_LIB_DIR "/usr/local/Cellar/unixodbc/2.3.4")
 include_directories(${ODBC_LIB_DIR}/include)
 link_directories(${ODBC_LIB_DIR}/lib)
 endif()
@@ -59,7 +59,7 @@ set(SOURCE_FILES
     snet/Util.h
     snet/IOSelect.cpp
     snet/IOSelect.h
-    )
+        snet/http/HttpRequest.cpp snet/http/HttpRequest.h)
 
 add_executable(snet ${SOURCE_FILES} ${DB_SOURCE_FILES})
 if (WIN32)

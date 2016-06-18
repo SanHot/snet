@@ -11,12 +11,12 @@
 
 HttpParserObj* HttpParserObj::m_instance = NULL;
 
-void HttpParserObj::parseBuffer(Buffer buf) {
-    parseBuffer(buf.buffer(), buf.offset());
+void HttpParserObj::parseBuffer(Buffer* buf) {
+    parseBuffer(buf->buffer(), buf->offset());
 }
 
 void HttpParserObj::parseBuffer(const char* buf, uint32_t len){
-    http_parser_init(&m_http_parser, HTTP_REQUEST);
+    http_parser_init(&m_http_parser, m_type);
     memset(&m_settings, 0, sizeof(m_settings));
     m_settings.on_url              = onUrl;
     m_settings.on_header_field     = onHeaderField;
@@ -24,11 +24,13 @@ void HttpParserObj::parseBuffer(const char* buf, uint32_t len){
     m_settings.on_headers_complete = onHeadersComplete;
     m_settings.on_body             = onBody;
     m_settings.on_message_complete = onMessageComplete;
+    m_settings.on_status           = onStatus;
     
     m_read_all = false;
     m_total_length = 0;
     m_url.clear();
     m_body_content.clear();
+    m_status.clear();
     
     http_parser_execute(&m_http_parser, &m_settings, buf, len);
 }

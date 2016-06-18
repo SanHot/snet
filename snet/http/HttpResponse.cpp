@@ -8,15 +8,9 @@
 
 #include "HttpResponse.h"
 
-void HttpResponse::setStatusCode(Http_Code code){
+void HttpResponse::setStatusCode(int code){
     m_code = code;
-    switch (code) {
-        case HTTP_OK:          m_des = "OK";break;
-        case HTTP_REQERROR:    m_des = "BAD REQUEST";break;
-        case HTTP_NOTFAND:     m_des = "NOT FOUND";break;
-        case HTTP_METHODERROR: m_des = "Method Not FOUND";break;
-        default:break;
-    }
+    m_des = m_reasons.getReason(code);
 }
 
 void HttpResponse::setHttp404Status(const char* error_msg) {
@@ -52,7 +46,7 @@ void HttpResponse::setHttp501Status() {
             "</BODY></HTML>\r\n");
 }
 
-std::string HttpResponse::packet(){
+std::string HttpResponse::dump(){
     std::string ret;
     char buf[32] = {0};
     

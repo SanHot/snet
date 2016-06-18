@@ -23,20 +23,28 @@ public:
         }
         return m_instance;
     }
-    
-    void parseBuffer(Buffer buf);
+
+    void setParserType(http_parser_type type) {m_type = type;}
+    void parseBuffer(Buffer* buf);
     void parseBuffer(const char* buf, uint32_t len);
     
     bool ready() {return m_read_all;}
     uint32_t length() {return m_total_length;}
     uint8_t method() {return m_method;}
+    http_method httpMethod() { return m_http_method;}
     std::string& url() {return m_url;}
     std::string& body() {return m_body_content;}
-    
-    void setUrl(const char* url, size_t length) {m_url.append(url, length);}
-    void setBodyContent(const char* content, size_t length) {m_body_content.append(content, length);}
+    std::string& status() {return m_status;}
+    uint32_t statusCode() {return m_status_code;}
+
+    void setUrl(const char* url, size_t length) {m_url.assign(url, length);}
+    void setBodyContent(const char* content, size_t length) {m_body_content.assign(content, length);}
     void setTotalLength(uint32_t total_len) {m_total_length = total_len;}
     void setReady() {m_read_all = true;}
+    void setStatus(uint32_t code, const char* status, size_t length) {
+        m_status_code = code;
+        m_status.assign(status, length);
+    }
     
     static int onUrl(http_parser* parser, const char *at, size_t length){
         m_instance->setUrl(at, length);
@@ -51,23 +59,28 @@ public:
         m_instance->addHeaders();
         return 0;
     }
-    static int onHeadersComplete (http_parser* parser){
+    static int onHeadersComplete(http_parser* parser){
         m_instance->setTotalLength(parser->nread + (uint32_t)parser->content_length);
         m_instance->setMethod((http_method)parser->method);
         return 0;
     }
-    static int onBody (http_parser* parser, const char *at, size_t length){
+    static int onBody(http_parser* parser, const char *at, size_t length){
         m_instance->setBodyContent(at, length);
         return 0;
     }
-    static int onMessageComplete (http_parser* parser){
+    static int onMessageComplete(http_parser* parser){
         m_instance->setReady();
+        return 0;
+    }
+    static int onStatus(http_parser* parser, const char *at, size_t length) {
+        m_instance->setStatus(parser->status_code, at, length);
         return 0;
     }
 private:
     //DISALLOW_EVIL_CONSTRUCTORS(HttpParserObj);
-    HttpParserObj(){}
+    HttpParserObj():m_type(HTTP_REQUEST){}
     void setMethod(http_method method) {
+        m_http_method = method;
         switch (method) {
             case HTTP_GET: m_method = 1;break;
             case HTTP_DELETE: m_method = 2;break;
@@ -89,11 +102,16 @@ private:
     bool        m_read_all;
     uint32_t    m_total_length;
     uint8_t m_method;
+    http_method m_http_method;
     std::string m_url;
     std::string m_body_content;
     std::string m_curHeaderName;
     std::string m_curHeaderValue;
     std::map<std::string, std::string> m_headers;
+
+    std::string m_status;
+    uint32_t m_status_code;
+    http_parser_type m_type;
 };
 
 #endif /* HttpParserObj_h */

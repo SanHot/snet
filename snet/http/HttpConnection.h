@@ -56,7 +56,7 @@ public:
                 m_callback(obj->method(), obj->url(), &res);
             else
                 res.setHttp404Status();
-            std::string data = res.packet();
+            std::string data = res.dump();
             auto stream = m_conn.lock();
             stream->async_write(data.c_str(), (int)data.length(), NULL);
         }

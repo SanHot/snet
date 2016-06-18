@@ -13,6 +13,8 @@
 #define  MAX_PATH 260
 #define MAX_LOG_FILE_SIZE	0x4000000
 
+using namespace std;
+
 int setSleep(int millisecond) {
 #ifdef _WIN32
     Sleep(millisecond);
@@ -117,4 +119,36 @@ char* GetIniKeyString(char *title, char *key, char *filename) {
     }
     fclose(fp);
     return NULL;
+}
+
+vector<string> strSplit(const string& src, const string& delim, size_t maxParts) {
+    if(maxParts == 0) {
+        maxParts = size_t(-1);
+    }
+    size_t lastPos = 0;
+    size_t pos = 0;
+    size_t size = src.size();
+
+    vector<string> tokens;
+
+    while(pos < size) {
+        pos = lastPos;
+        while(pos < size && delim.find_first_of(src[pos]) == string::npos) {
+            ++pos;
+        }
+
+        if(pos - lastPos > 0) {
+            if(tokens.size() == maxParts - 1) {
+                tokens.push_back(src.substr(lastPos));
+                break;
+            }
+            else {
+                tokens.push_back(src.substr(lastPos, pos - lastPos));
+            }
+        }
+
+        lastPos = pos + 1;
+    }
+
+    return tokens;
 }

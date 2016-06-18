@@ -51,14 +51,21 @@ struct ServerInfo {
     std::string pwd;
 };
 
+struct StatementsInfo {
+    int flag;
+    std::string sql;
+    int param_count;
+    nlohmann::json param;
+};
+
 int readConfig(const char* path, nlohmann::json& config) {
-    char b[1024] = {0};
+    char b[10240] = {0};
     FILE *fp = fopen(path, "rb");
     if(fp == nullptr) {
         LOG_STDOUT("%s OpenError!", path);
         return -1;
     }
-    fread(b, sizeof(char), 1024, fp);
+    fread(b, sizeof(char), 10240, fp);
     fclose(fp);
     try {
         config = nlohmann::json::parse(b);
@@ -70,7 +77,7 @@ int readConfig(const char* path, nlohmann::json& config) {
     return 0;
 }
 
-int readUrlConfig(const std::string& url, ServerInfo& si, int& flag, std::string& sql) {
+int readUrlConfig(const std::string& path, ServerInfo& svr_info, StatementsInfo& smt_info) {
     nlohmann::json si_config;
     nlohmann::json exec_config;
     {
@@ -79,27 +86,40 @@ int readUrlConfig(const std::string& url, ServerInfo& si, int& flag, std::string
         exec_config = g_exec_config;
     }
 
-    if(exec_config.find(url) == exec_config.end())
+    if(exec_config.find(path) == exec_config.end())
         return -1;
 
     try {
-        nlohmann::json j_exec = exec_config[url];
+        nlohmann::json j_exec = exec_config[path];
+
         std::string si_name = j_exec["db"];
         nlohmann::json j_db = si_config[si_name];
 
-        si = ServerInfo(j_db["host"], j_db["db"], j_db["uid"], j_db["pwd"]);
-        flag = j_exec["exec"] == "query"? FLAG_QUERY:FLAG_EXEC;
-        sql = j_exec["sql"];
+        svr_info = ServerInfo(j_db["host"], j_db["db"], j_db["uid"], j_db["pwd"]);
+
+        smt_info.flag = j_exec["exec"] == "query"? FLAG_QUERY:FLAG_EXEC;
+        smt_info.sql = j_exec["sql"];
+
+        nlohmann::json count = j_exec["param_count"];
+        if(!count.empty() && count.is_number())
+            smt_info.param_count = count;
+        else
+            smt_info.param_count = 0;
+
+        if(j_exec.find("param") != j_exec.end()) {
+            smt_info.param = j_exec["param"];
+        }
+
     }
     catch(std::exception const& e) {
-        LOG_STDOUT("readUrlConfig(%s): %s", url.c_str(), e.what());
+        LOG_STDOUT("readUrlConfig(%s): %s", path.c_str(), e.what());
         return -1;
     }
 
     return 0;
 }
 
-int db_odbc_exec(const ServerInfo &si, int flag, const char *sql, Buffer *content) {
+int db_odbc_exec(const ServerInfo &si, const StatementsInfo &smt_info, Buffer *content) {
     try {
         char dsn[512] = {0};
         char ct = ';';
@@ -109,8 +129,8 @@ int db_odbc_exec(const ServerInfo &si, int flag, const char *sql, Buffer *conten
         nanodbc::connection conn(NANODBC_TEXT(dsn), 10);
         long batch_size = 1;
         LOG_STDOUT("DB_EXEC(%s): Start exec", si.database.c_str());
-        nanodbc::result row = execute(conn, NANODBC_TEXT(sql), batch_size, 30);
-        if (flag == FLAG_QUERY) {
+        nanodbc::result row = execute(conn, NANODBC_TEXT(smt_info.sql), batch_size, 30);
+        if (smt_info.flag == FLAG_QUERY) {
             for (int n = 0; n < row.columns(); ++n) {
                 std::string col_name = row.column_name(n);
                 content->write((void *) col_name.c_str(), col_name.length());
@@ -136,8 +156,14 @@ int db_odbc_exec(const ServerInfo &si, int flag, const char *sql, Buffer *conten
             LOG_STDOUT("DB_EXEC(%s): Fetch %d", si.database.c_str(), (int) content->offset());
             content->buffer()[content->offset()] = '\0';
         }
+        else {
+            int n = row.affected_rows();
+            LOG_STDOUT("DB_EXEC(%s): Affected %d", si.database.c_str(), (int)n);
+            content->buffer()[content->offset()] = '\0';
+            return n;
+        }
     }
-    catch (std::runtime_error const& e) {
+    catch (std::exception const& e) {
         std::string ret(e.what());
         content->write((void*)ret.c_str(), ret.length());
         content->buffer()[content->offset()] = '\0';
@@ -146,13 +172,12 @@ int db_odbc_exec(const ServerInfo &si, int flag, const char *sql, Buffer *conten
     return 0;
 }
 
-void callback(uint8_t method, const std::string &url, HttpResponse *res) {
+void callback(const HttpRequest* req, HttpResponse* res) {
     Buffer content;
-    std::string sql;
-    ServerInfo si;
-    int flag;
+    ServerInfo svr_info;
+    StatementsInfo smt_info;
 
-    if (url == "/") {
+    if (req->path() == "/") {
         res->setStatusCode(HttpResponse::HTTP_OK);
         res->setContentType(CONTEXT_TYPE_HTML);
         res->addHeader("Server", JOINTCOM_FLAG);
@@ -162,8 +187,49 @@ void callback(uint8_t method, const std::string &url, HttpResponse *res) {
                              "<body><h1>Welcom to JOINTCOM</h1>Now is " + std::string(date) +
                      "</body></html>");
     }
-    else if(readUrlConfig(url, si, flag, sql) == 0) {
-        int ret = db_odbc_exec(si, flag, sql.c_str(), &content);
+    else if(readUrlConfig(req->path(), svr_info, smt_info) == 0) {
+//        const std::string select_key = "select";
+//        auto it_col = req->query_param().find(select_key);
+//        if(it_col != req->query_param().end()) {
+//            auto n = smt_info.sql.find_first_of('*');
+//            if(n != std::string::npos) {
+//                smt_info.sql.replace(n, 1, req->query_param().at(select_key));
+//            }
+//        }
+        //固定式参数
+        if(smt_info.param_count > 0) {
+            if(smt_info.param_count != req->query_param().size()){
+                res->setHttp404Status("Query Param error!");
+                return;
+            }
+            auto it = req->query_param().begin();
+            for (int i = 0; i < smt_info.param_count; i++) {
+                auto n = smt_info.sql.find_first_of('?');
+                if(n != std::string::npos) {
+                    smt_info.sql.replace(n, 1, it->first);
+                    it++;
+                }
+            }
+        }
+        //自由式参数
+        else if(smt_info.param_count == 0 && req->query_param().size() > 0) {
+            auto it = req->query_param().begin();
+            std::string temp = " where ";
+            for (int i = 0; i < req->query_param().size(); i++) {
+                temp += "[";
+                temp += it->first;
+                temp += "] = '";
+                temp += it->second;
+                temp += "'";
+                if(i != req->query_param().size() -1){
+                    temp += " and ";
+                    it++;
+                }
+            }
+            smt_info.sql += temp;
+        }
+
+        int ret = db_odbc_exec(svr_info, smt_info, &content);
         if(ret == -1) {
             res->setHttp404Status(content.buffer());
             return;
