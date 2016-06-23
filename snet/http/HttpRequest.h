@@ -97,6 +97,7 @@ private:
                                       const std::string& delim,
                                       size_t maxParts = size_t(-1));
     std::string unescape(const std::string& src);
+    std::string   escape(const std::string & src);
 
 private:
     //http 字段

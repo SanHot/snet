@@ -61,6 +61,40 @@ inline std::string any_to_string<nanodbc::string_type>(nanodbc::string_type cons
     return convert(t);
 }
 
+std::vector<std::string> split_string(const std::string& src,
+                                      const std::string& delim,
+                                      size_t maxParts = size_t(-1)) {
+    if(maxParts == 0) {
+        maxParts = size_t(-1);
+    }
+    size_t lastPos = 0;
+    size_t pos = 0;
+    size_t size = src.size();
+
+    std::vector<std::string> tokens;
+
+    while(pos < size) {
+        pos = lastPos;
+        while(pos < size && delim.find_first_of(src[pos]) == std::string::npos) {
+            ++pos;
+        }
+
+        if(pos - lastPos > 0) {
+            if(tokens.size() == maxParts - 1) {
+                tokens.push_back(src.substr(lastPos));
+                break;
+            }
+            else {
+                tokens.push_back(src.substr(lastPos, pos - lastPos));
+            }
+        }
+
+        lastPos = pos + 1;
+    }
+
+    return tokens;
+}
+
 std::string GBKToUTF8(const char* strGBK) {
 #ifdef _WIN32
     int len = MultiByteToWideChar(CP_ACP, 0, strGBK, -1, NULL, 0);
