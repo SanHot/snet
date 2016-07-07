@@ -9,10 +9,13 @@
 #ifndef stdafx_http_h
 #define stdafx_http_h
 
-#define JOINTCOM_FLAG "Jointcom/snet1.1"
+#define JOINTCOM_FLAG "Jointcom/snet1.2"
 #define CONTEXT_TYPE_DATE "multipart/form-data"
 #define CONTEXT_TYPE_HTML "text/html;charset=utf-8"
 #define CONTEXT_TYPE_PLAIN "text/plain;charset=utf-8"
+#define CONTEXT_TYPE_JSON "application/json;charset=utf-8"
+#define CONTEXT_TYPE_CSV "text/csv;charset=utf-8"
+
 
 #define HTTP_RESPONSE_HEADER    "HTTP/1.1 200 OK\r\n"\
                                 "Connection:close\r\n"\
