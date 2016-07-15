@@ -4,7 +4,7 @@ project(snet)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 if (APPLE)
-set(FREETDS_LIB_DIR "/usr/local/Cellar/freetds/0.95.80")
+set(FREETDS_LIB_DIR "/usr/local/Cellar/freetds/1.00.9")
 include_directories (${FREETDS_LIB_DIR}/include)
 link_directories (${FREETDS_LIB_DIR}/lib)
 

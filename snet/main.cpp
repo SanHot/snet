@@ -17,16 +17,12 @@
 #ifdef WIN32
     #define DB_DRIVER "SQL SERVER"
 #else
-    #define DB_DRIVER "/usr/local/Cellar/freetds/0.95.80/lib/libtdsodbc.so"
+    #define DB_DRIVER "/usr/local/Cellar/freetds/1.00.9/lib/libtdsodbc.so"
 #endif
 #define MAX_CONTENT_LEN 0x100000
 #define EXEC_CONFIG_FILE "exec_config"
 #define NET_CONFIG_FILE "net_config"
 #define DB_CONFIG_FILE "db_config"
-
-#define FLAG_TXT 0
-#define FLAG_JSON 1
-#define FLAG_CSV 2
 
 nlohmann::json g_si_config;
 nlohmann::json g_exec_config;
@@ -54,6 +50,7 @@ struct ServerInfo {
 
 struct StatementsInfo {
     int flag;
+    std::string flag_type;
     std::string sql;
     int param_count;
     nlohmann::json param;
@@ -95,10 +92,11 @@ int readUrlConfig(const http_method& method, const std::string& path,
 
     try {
         nlohmann::json j_exec = exec_config[path];
+        smt_info.flag_type = j_exec["exec"];
 
         if(j_exec["exec"] == "query")
             smt_info.flag = HTTP_GET;
-        else if(j_exec["exec"] == "exec")
+        else if(j_exec["exec"] == "exec" || j_exec["exec"] == "exec_identity")
             smt_info.flag = HTTP_POST;
         else if(j_exec["exec"] == "delete")
             smt_info.flag = HTTP_DELETE;
@@ -130,6 +128,7 @@ int readUrlConfig(const http_method& method, const std::string& path,
             smt_info.param = j_exec["param"];
         }
 
+        //获取content_type参数
         if(j_exec.find("content_type") != j_exec.end()) {
             smt_info.content_type = j_exec["content_type"];
         }
@@ -142,7 +141,7 @@ int readUrlConfig(const http_method& method, const std::string& path,
     return 0;
 }
 
-int db_odbc_exec(const ServerInfo &si, const StatementsInfo &smt_info, Buffer *content, int& content_flag) {
+int db_odbc_exec(const ServerInfo &si, const StatementsInfo &smt_info, Buffer *content, std::string& content_type) {
     try {
         char dsn[512] = {0};
         const char ct = ',';
@@ -154,7 +153,7 @@ int db_odbc_exec(const ServerInfo &si, const StatementsInfo &smt_info, Buffer *c
         long batch_size = 1;
         LOG_STDOUT("DB_EXEC(%s): Start exec", si.database.c_str());
         nanodbc::result row = execute(conn, NANODBC_TEXT(smt_info.sql), batch_size, 30);
-        if (smt_info.flag == HTTP_GET) {
+        if (smt_info.flag_type == "query") {
             for (int n = 0; n < row.columns(); ++n) {
                 std::string col_name = row.column_name(n);
                 std::string::size_type pos;
@@ -185,7 +184,18 @@ int db_odbc_exec(const ServerInfo &si, const StatementsInfo &smt_info, Buffer *c
             }
             LOG_STDOUT("DB_EXEC(%s): Fetch %d", si.database.c_str(), (int) content->offset());
             content->buffer()[content->offset()] = '\0';
-            content_flag = FLAG_CSV;
+            content_type = CONTEXT_TYPE_CSV;
+            return 0;
+        }
+        else if(smt_info.flag_type == "exec_identity") {
+            nanodbc::result row_id = execute(conn, "select @@identity as id;");
+            row_id.next();
+            nlohmann::json result;
+            result["id"] = row_id.get<int>(0);
+            std::string ret = result.dump();
+            content->write((void *)ret.c_str(), ret.length());
+            content->buffer()[content->offset()] = '\0';
+            content_type = CONTEXT_TYPE_JSON;
             return 0;
         }
         else {
@@ -196,7 +206,7 @@ int db_odbc_exec(const ServerInfo &si, const StatementsInfo &smt_info, Buffer *c
             std::string ret = result.dump();
             content->write((void *)ret.c_str(), ret.length());
             content->buffer()[content->offset()] = '\0';
-            content_flag = FLAG_TXT;
+            content_type = CONTEXT_TYPE_JSON;
             return n;
         }
     }
@@ -284,19 +294,14 @@ void callback(const HttpRequest* req, HttpResponse* res) {
             smt_info.sql = sql;
         }
 
-        int content_flag = 0;
-        int ret = db_odbc_exec(svr_info, smt_info, &content, content_flag);
+        std::string content_type(CONTEXT_TYPE_PLAIN);
+        int ret = db_odbc_exec(svr_info, smt_info, &content, content_type);
         if (ret == -1) {
             res->setHttp404Status(content.buffer());
             return;
         }
         res->setStatusCode(HttpResponse::HTTP_OK);
-        if(content_flag == FLAG_JSON)
-            res->setContentType(CONTEXT_TYPE_JSON);
-        else if(content_flag == FLAG_CSV)
-            res->setContentType(CONTEXT_TYPE_CSV);
-        else
-            res->setContentType(CONTEXT_TYPE_PLAIN);
+        res->setContentType(content_type);
         res->addHeader("Server", JOINTCOM_FLAG);
         res->setBody(content.buffer());
     }

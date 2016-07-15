@@ -10,7 +10,7 @@
 #include "../TcpStream.h"
 #include "HttpServer.h"
 
-#define SERVER_TIMEOUT 30000
+#define SERVER_TIMEOUT 60000
 
 MUTEX_T HttpServer::s_mtx;
 SendList_t HttpServer::s_sendList;
@@ -30,8 +30,8 @@ void HttpTask::run() {
     else
         res.setHttp404Status();
     res.setAlive(false);
-    cb_time = get_tick()-cb_time;
-    if(cb_time<SERVER_TIMEOUT) {
+    cb_time = get_tick() - cb_time;
+    if(cb_time < SERVER_TIMEOUT) {
         HttpServer::addResponseList(m_fd, res);
         LOG_STDOUT("Task(%s): complete(%lld ms)", m_url.c_str(), cb_time);
     }
