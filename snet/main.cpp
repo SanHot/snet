@@ -188,15 +188,21 @@ int db_odbc_exec(const ServerInfo &si, const StatementsInfo &smt_info, Buffer *c
             return 0;
         }
         else if(smt_info.flag_type == "exec_identity") {
-            nanodbc::result row_id = execute(conn, "select @@identity as id;");
-            row_id.next();
             nlohmann::json result;
-            result["id"] = row_id.get<int>(0);
+            int n = row.affected_rows();
+            if(n > 0) {
+                nanodbc::result row_id = execute(conn, "select @@identity as id;");
+                row_id.next();
+                result["id"] = row_id.get<int>(0);
+            }
+            else {
+                result["id"] = -1;
+            }
             std::string ret = result.dump();
-            content->write((void *)ret.c_str(), ret.length());
+            content->write((void *) ret.c_str(), ret.length());
             content->buffer()[content->offset()] = '\0';
             content_type = CONTEXT_TYPE_JSON;
-            return 0;
+            return n;
         }
         else {
             int n = row.affected_rows();
@@ -233,7 +239,7 @@ void callback(const HttpRequest* req, HttpResponse* res) {
                                  "<body><h1>Welcom to JOINTCOM</h1>Now is " + std::string(date) +
                          "</body></html>");
     }
-    else if (readUrlConfig(req->method(), req->path(), svr_info, smt_info) == 0) {
+    else if (readUrlConfig(req->method(), req->path(), svr_info, smt_info) != -1) {
         if (req->method() == HTTP_GET || req->method() == HTTP_DELETE) {
             if(smt_info.param_count > 0) {
                 //固定参数
