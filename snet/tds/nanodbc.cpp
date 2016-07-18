@@ -2760,7 +2760,10 @@ inline void result::result_impl::get_ref_impl<string_type>(short column, string_
             char* old_lc_time = std::setlocale(LC_TIME, NULL);
             std::setlocale(LC_TIME, "");
             char date_str[512];
-            std::strftime(date_str, sizeof(date_str), "%Y-%m-%d %H:%M:%S %z", &st);
+// -------------------modify by san-----------------------
+//            std::strftime(date_str, sizeof(date_str), "%Y-%m-%d %H:%M:%S %z", &st);
+            std::strftime(date_str, sizeof(date_str), "%Y-%m-%d %H:%M:%S", &st);
+// -------------------modify by san-----------------------
             std::setlocale(LC_TIME, old_lc_time);
             convert(date_str, result);
             return;
